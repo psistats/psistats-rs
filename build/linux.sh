@@ -16,7 +16,7 @@ if [ -z "$BUILD_NUMBER" ]; then DEBIAN_VERSION=$PROJECT_VERSION; else DEBIAN_VER
 DEBIAN_TARGET_DIR="$PROJECT_DIR/target/debian"
 DEBIAN_FILE="$DEBIAN_TARGET_DIR/${PROJECT_NAME}_${DEBIAN_VERSION}_amd64.deb"
 
-# cargo clean
+cargo clean
 cargo build --bin psistats --release
 cargo deb --deb-version $DEBIAN_VERSION --verbose
 
