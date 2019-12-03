@@ -11,7 +11,7 @@ pipeline {
   }
   post {
     success {
-      emailext {
+      emailext (
         subject: "JOB: ${env.JOB_NAME} [${env.BUILD_NUMBER}] - Status: SUCCESSFUL",
         body: """${env.JOB_NAME} [${env.BUILD_NUMBER}] was completed successfully. \
 
@@ -23,7 +23,7 @@ ___  ____ _ _  _ ____ _  _
 
         """,
         to: "ci@psikon.com"
-      }
+      )
     }
     failure {
       emailext {
