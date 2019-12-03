@@ -3,15 +3,25 @@ pipeline {
     label 'master'
   }
   stages {
-    stage('Build') {
+    stage('Prepare') {
       steps {
-        sh 'build/linux.sh'
+        sh 'cargo clean'
+        sh 'cargo install cargo-deb'
+        sh 'cargo install cargo-rpm'
+        sh 'cargo install cargo-config'
       }
     }
-    stage('Archive') {
+    stage('Build') {
+      steps {
+        sh 'cargo build --bin psistats'
+
+      }
+    }
+    stage('Publish') {
       steps {
         archiveArtifacts artifacts: 'target/release/psistats', onlyIfSuccessful: true
         archiveArtifacts artifacts: 'target/debian/*.deb', onlyIfSuccessful: true
+        sh 'build/linux.sh'
       }
     }
   }
