@@ -19,9 +19,9 @@ pipeline {
     }
     stage('Publish') {
       steps {
+        sh 'build/linux.sh'
         archiveArtifacts artifacts: 'target/release/psistats', onlyIfSuccessful: true
         archiveArtifacts artifacts: 'target/debian/*.deb', onlyIfSuccessful: true
-        sh 'build/linux.sh'
       }
     }
   }
