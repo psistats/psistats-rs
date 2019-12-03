@@ -1,0 +1,7 @@
+<service>
+	<id>psistats-service</id>
+	<name>Psistats Service</name>
+	<description>Psistats reports on various system metrics such as cpu and memory usage.</description>
+	<executable>psistats.exe</executable>
+	<logmode>rotate</logmode>
+</service>

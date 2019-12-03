@@ -1,0 +1,11 @@
+[Unit]
+Description=psistats service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/psistats --config /etc/psistats/psistats.toml
+Type=exec
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
