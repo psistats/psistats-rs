@@ -26,19 +26,19 @@ ___  ____ _ _  _ ____ _  _
       )
     }
     failure {
-      emailext {
+      emailext (
         subject: "JOB: ${env.JOB_NAME} [${env.BUILD_NUMBER}] - Status: FAILURE",
         body: """${env.JOB_NAME} [${env.BUILD_NUMBER}] has failed! \
 
 Check console output at ${env.BUILD_URL}
 
 ___  ____ _ _  _ ____ _  _
-|__] [__  | |_/  |  | |\ |
-|    ___] | | \_ |__| | \|
+|__] [__  | |_/  |  | |\\ |
+|    ___] | | \\_ |__| | \\|
 
       """,
         to: "ci@psikon.com"
-      }
+      )
     }
   }
 }
