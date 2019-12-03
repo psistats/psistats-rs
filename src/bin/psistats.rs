@@ -15,7 +15,7 @@ use clap::{Arg, App};
 fn main() {
 
     let matches = App::new("Psistats")
-                    .version("1.0.0")
+                    .version("0.1.0-beta")
                     .author("Alex Dow <adow@psikon.com>")
                     .about("System metrics reporting tool")
                     .arg(Arg::with_name("conf")

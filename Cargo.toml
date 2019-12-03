@@ -1,6 +1,6 @@
 [package]
 name = "psistats"
-version = "1.0.0"
+version = "0.1.0-beta"
 license = "MIT"
 authors = ["Alex Dow <adow@psikon.com>"]
 edition = "2018"
