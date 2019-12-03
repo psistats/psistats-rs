@@ -44,11 +44,12 @@ ___  ____ _ _  _ ____ _  _
     failure {
       emailext (
         subject: "JOB: ${env.JOB_NAME} [${env.BUILD_NUMBER}] - Status: FAILURE",
-        body: """${env.JOB_NAME} [${env.BUILD_NUMBER}] has failed! \
+        body: """
+${env.JOB_NAME} [${env.BUILD_NUMBER}] has failed!
 
 Check full console output at ${env.BUILD_URL}
 
-${BUILD_LOG, maxLines=250}
+${BUILD_LOG}
 
 ___  ____ _ _  _ ____ _  _
 |__] [__  | |_/  |  | |\\ |
