@@ -13,7 +13,7 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh 'cargo build --bin psistats'
+        sh 'cargo build --bin psistats --release'
 
       }
     }
