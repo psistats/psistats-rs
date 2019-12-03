@@ -49,7 +49,7 @@ ${env.JOB_NAME} [${env.BUILD_NUMBER}] has failed!
 
 Check full console output at ${env.BUILD_URL}
 
-${BUILD_LOG}
+${currentBuild.rawBuild.getLog(250)}
 
 ___  ____ _ _  _ ____ _  _
 |__] [__  | |_/  |  | |\\ |
