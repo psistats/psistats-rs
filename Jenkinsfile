@@ -6,9 +6,9 @@ pipeline {
     stage('Prepare') {
       steps {
         sh 'cargo clean'
-        sh 'cargo install cargo-deb'
-        sh 'cargo install cargo-rpm'
-        sh 'cargo install cargo-config'
+        sh 'cargo install cargo-deb || true'
+        sh 'cargo install cargo-rpm || true'
+        sh 'cargo install cargo-config || true'
       }
     }
     stage('Build') {
