@@ -46,9 +46,10 @@ install:
 # 'cargo test' takes care of building for us, so disable Appveyor's build stage. This prevents
 # the "directory does not contain a project or solution file" error.
 # source: https://github.com/starkat99/appveyor-rust/blob/master/appveyor.yml#L113
-build:
+build_script:
   - cargo build --bin psistats --release --verbose
   - cargo wix --verbose
+
 
 
 # Equivalent to Travis' `script` phase
