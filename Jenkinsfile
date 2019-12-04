@@ -60,7 +60,8 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
             [name: 'Authorization', value: "Bearer ${appveyor_token}"],
             [name: 'Content-type', value: 'application/json']
         ],
-        requestBody: request_body
+        requestBody: request_body,
+        validResponseCodes: '200:500'
     )
 
     def content = build_response.getContent();
