@@ -1,9 +1,9 @@
-def download_appveyor_artifacts(build_version, accountName, projectSlug) {
+def appveyor_download_artifacts(accountName, projectSlug, buildVersion) {
 
   echo '[APPVEYOR] Downloading artifacts';
 
   def content = httpRequest(
-    url: "https://ci.appveyor.com/api/projects/${accountName}/${projectSlug}/build/${build_version}",
+    url: "https://ci.appveyor.com/api/projects/${accountName}/${projectSlug}/build/${buildVersion}",
     customHeaders: [
       [name: 'Accept', value: 'application/json']
     ]
@@ -24,12 +24,12 @@ def download_appveyor_artifacts(build_version, accountName, projectSlug) {
   echo artifact_response_content;
 
   build_obj = new groovy.json.JsonSlurperClassic().parseText(artifact_response_content);
-
+// https://ci.appveyor.com/api/buildjobs/00isd7y2mvy3pvam/artifacts/target%2Fwix%2Fpsistats-0.1.0-beta-x86_64.msi
   build_obj.each {
     echo "[APPVEYOR] Artifact found: ${it.fileName}";
+    def fn = java.net.URLEncoder.encode(it.fileName, 'UTF-8');
+    sh(script: """wget https://ci.appveyor.com/api/buildjobs/${job_id}.artifacts/${fn}""");
   };
-
-
 }
 
 def appveyor_start_build(appveyorToken, accountName, projectSlug, branch, commitId) {
@@ -183,6 +183,14 @@ pipeline {
                       }
                     }
                   }
+                }
+              }
+            }
+
+            stage('Download Appveyor Artifacts') {
+              steps {
+                script {
+                  appveyor_download_artifacts('alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
                 }
               }
             }
