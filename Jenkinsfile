@@ -38,7 +38,7 @@ def appveyor_start_build(appveyorToken, accountName, projectSlug, branch, commit
   def request = [:]
   request['accountName'] = accountName;
   request['projectSlug'] = projectSlug;
-  request['environmentVariables'] = env;
+  request['environmentVariables'] = env.getEnvironment();
 
   if (branch.startsWith('PR')) {
     echo '[APPVEYOR] Building a pull request';
