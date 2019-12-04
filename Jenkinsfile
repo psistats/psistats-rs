@@ -52,6 +52,7 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
 
     def request_body = new groovy.json.JsonBuilder(request).toPrettyString();
     echo "[APPVEYOR] Request body: ${request_body}";
+    echo "[APPVEYOR] Token: ${appveyor_token}";
 
     def build_response = httpRequest(
         url: 'https://ci.appveyor.com/api/builds',
