@@ -58,7 +58,7 @@ incremental = true
 overflow-checks = true
 
 [profile.release]
-opt-level = 0
+opt-level = 3
 debug = false
 rpath = false
 lto = false
