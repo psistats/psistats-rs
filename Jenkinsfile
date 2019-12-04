@@ -154,6 +154,7 @@ pipeline {
             }
             stage('Build Raspberry Pi') {
               steps {
+                sh 'rm -rf ~/.cargo/registry/*'
                 sh 'cargo clean'
                 sh 'cargo build --bin psistats --release --verbose --target armv7-unknown-linux-gnueabihf'
               }
