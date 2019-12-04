@@ -174,8 +174,10 @@ pipeline {
                   script {
                     def appveyorFinished = false;
 
+                    def buildStatus = ""
+
                     while (appveyorFinished == false) {
-                      def buildStatus = appveyor_build_status(TOKEN, 'alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
+                      buildStatus = appveyor_build_status(TOKEN, 'alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
                       if (buildStatus == "success" || buildStatus == "error" || buildStatus == "failed" || buildStatus == 'cancelled') {
                         echo "[APPVEYOR] Finished. Result is ${buildStatus} ";
                         appveyorFinished = true;
