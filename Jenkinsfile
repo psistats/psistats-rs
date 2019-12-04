@@ -132,7 +132,6 @@ pipeline {
     stage('Prepare') {
       steps {
         updateGithubCommitStatus(currentBuild)
-        sh 'cargo clean'
         sh 'cargo install cargo-deb || true'
         sh 'cargo install cargo-config || true'
       }
@@ -144,6 +143,7 @@ pipeline {
           stages {
             stage('Build x86_64') {
               steps {
+                sh 'cargo clean'
                 sh 'cargo build --bin psistats --release --verbose --target x86_64-unknown-linux-gnu'
               }
             }
@@ -154,6 +154,7 @@ pipeline {
             }
             stage('Build Raspberry Pi') {
               steps {
+                sh 'cargo clean'
                 sh 'cargo build --bin psistats --release --verbose --target armv7-unknown-linux-gnueabihf'
               }
             }
