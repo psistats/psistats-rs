@@ -38,7 +38,7 @@
         Manufacturer='Alex Dow'
         Language='1033'
         Codepage='1252'
-        Version='0.1.0.[%APPVEYOR_BUILD_NUMBER]'>
+        Version='0.1.0.$(env.APPVEYOR_BUILD_NUMBER)'>
 
         <Package Id='*'
             Keywords='Installer'
