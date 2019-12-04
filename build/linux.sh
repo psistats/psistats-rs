@@ -1,5 +1,5 @@
 #!/bin/bash
-
+PLATFORM=$1
 ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PROJECT_DIR="$( realpath "$ME/../" )"
 cd $PROJECT_DIR
@@ -13,7 +13,7 @@ DEBIAN_TARGET_DIR="$PROJECT_DIR/target/debian"
 DEBIAN_FILE="$DEBIAN_TARGET_DIR/${PROJECT_NAME}_${DEBIAN_VERSION}_amd64.deb"
 
 
-cargo deb --deb-version $DEBIAN_VERSION --verbose
+cargo deb --deb-version $DEBIAN_VERSION --target $PLATFORM --verbose
 
 cd $DEBIAN_TARGET_DIR
 

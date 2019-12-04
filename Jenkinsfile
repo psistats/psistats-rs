@@ -24,7 +24,7 @@ def appveyor_download_artifacts(accountName, projectSlug, buildVersion) {
   echo artifact_response_content;
 
   build_obj = new groovy.json.JsonSlurperClassic().parseText(artifact_response_content);
-// https://ci.appveyor.com/api/buildjobs/00isd7y2mvy3pvam/artifacts/target%2Fwix%2Fpsistats-0.1.0-beta-x86_64.msi
+
   build_obj.each {
     echo "[APPVEYOR] Artifact found: ${it.fileName}";
     def f = new File(it.fileName);
@@ -142,14 +142,24 @@ pipeline {
 
         stage('Linux') {
           stages {
-            stage('Build') {
+            stage('Build x86_64') {
               steps {
-                sh 'cargo build --bin psistats --release --verbose'
+                sh 'cargo build --bin psistats --release --verbose --target x86_64-unknown-linux-gnu'
               }
             }
-            stage('Package') {
+            stage('Package x86_64') {
               steps {
-                sh 'build/linux.sh'
+                sh 'build/linux.sh x86_64-unknown-linux-gnu'
+              }
+            }
+            stage('Build Raspberry Pi') {
+              steps {
+                sh 'cargo build --bin psistats --release --verbose --target armv7-unknown-linux-gnueabihf'
+              }
+            }
+            stage('Package Raspberry Pi')  {
+              steps {
+                sh 'build/linux.sh armv7-unknown-linux-gnueabihf'
               }
             }
           }
