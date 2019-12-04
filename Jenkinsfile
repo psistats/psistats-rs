@@ -157,12 +157,16 @@ pipeline {
     }
     stage('Build') {
       steps {
-        parallel: {
-          linux: {
-            sh 'cargo build --bin psistats --release --verbose'
-          },
-          windows: {
-            echo 'Windows!'
+        parallel {
+          stage('Linux') {
+            steps {
+              sh 'cargo build --bin psistats --release --verbose'
+            }
+          }
+          stage('Windows') {
+            steps {
+              sh 'echo Windows!'
+            }
           }
         }
       }
