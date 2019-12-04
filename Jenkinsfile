@@ -166,7 +166,7 @@ pipeline {
             stage('Build x86_64') {
               steps {
                 sh 'cargo clean'
-                sh 'cargo build --bin psistats --release --verbose --target x86_64-unknown-linux-gnu'
+                sh 'cargo build --bin psistats --target x86_64-unknown-linux-gnu --release '
               }
             }
             stage('Package x86_64') {
@@ -177,7 +177,7 @@ pipeline {
             stage('Build Raspberry Pi') {
               steps {
                 sh 'cargo clean'
-                sh 'cargo build --bin psistats --release --verbose --target armv7-unknown-linux-gnueabihf'
+                sh 'cargo build --bin psistats --target armv7-unknown-linux-gnueabihf --release'
               }
             }
             stage('Package Raspberry Pi')  {

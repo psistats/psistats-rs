@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 TARGET=$1
 PROJECT_NAME="$( cargo config package.name | cut -d '"' -f 2 )"
 PROJECT_VERSION="$( cargo config package.version | cut -d '"' -f 2 )"
@@ -19,8 +20,7 @@ if [ -z "$BUILD_NUMBER" ]; then DEBIAN_VERSION=$PROJECT_VERSION; else DEBIAN_VER
 DEBIAN_TARGET_DIR="$PROJECT_DIR/target/$TARGET/debian"
 DEBIAN_FILE="$DEBIAN_TARGET_DIR/${PROJECT_NAME}_${DEBIAN_VERSION}_${PROJECT_DEB_ARCH}.deb"
 
-
-cargo deb --deb-version $DEBIAN_VERSION --target $PLATFORM --verbose
+cargo deb --deb-version $DEBIAN_VERSION --target $PLATFORM
 
 cd $DEBIAN_TARGET_DIR
 
@@ -30,7 +30,7 @@ cat debian-binary control.tar.gz data.tar.xz > "/tmp/${PROJECT_NAME}-${DEBIAN_VE
 gpg -abs -o _gpuorigin "/tmp/${PROJECT_NAME}-${DEBIAN_VERSION}-combined-contents"
 ar rc $DEBIAN_FILE _gpuorigin debian-binary control.tar.gz data.tar.xz
 rm _gpuorigin debian-binary control.tar.gz data.tar.xz "/tmp/${PROJECT_NAME}-${DEBIAN_VERSION}-combined-contents"
-mv $DEBIAN_FILE $PROJECT_DIR/target/artifacts
+mv $DEBIAN_FILE "${PROJECT_DIR}/target/artifacts"
 
 aptly repo add psikon-devel $DEBIAN_FILE
 ~/debian_repo/update.sh
