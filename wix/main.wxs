@@ -38,7 +38,7 @@
         Manufacturer='Alex Dow'
         Language='1033'
         Codepage='1252'
-        Version='$(var.Version)'>
+        Version='0.1.0.[%APPVEYOR_BUILD_NUMBER]'>
 
         <Package Id='*'
             Keywords='Installer'
@@ -171,7 +171,7 @@
           <Custom Action="POST_UNINSTALL" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE~="ALL")</Custom>
         </InstallExecuteSequence>
 
-      
+
 
         <!--
           Uncomment the following `Icon` and `Property` tags to change the product icon.
@@ -183,7 +183,7 @@
         <!--<Property Id='ARPPRODUCTICON' Value='ProductICO' />-->
 
         <Property Id='ARPHELPLINK' Value='https://www.psikon.org'/>
-        
+
         <UI>
             <UIRef Id='WixUI_FeatureTree'/>
             <!--
@@ -195,7 +195,7 @@
             -->
             <!--<Publish Dialog='WelcomeDlg' Control='Next' Event='NewDialog' Value='CustomizeDlg' Order='99'>1</Publish>-->
             <!--<Publish Dialog='CustomizeDlg' Control='Back' Event='NewDialog' Value='WelcomeDlg' Order='99'>1</Publish>-->
-            
+
         </UI>
 
         <!--
@@ -203,8 +203,8 @@
           or removing the following `WixVariable` tag
         -->
         <WixVariable Id='WixUILicenseRtf' Value='wix\License.rtf'/>
-        
-        
+
+
         <!--
           Uncomment the next `WixVaraible` tag to customize the installer's
           Graphical User Interface (GUI) and add a custom banner image across
@@ -215,7 +215,7 @@
         -->
         <!--<WixVariable Id='WixUIBannerBmp' Value='wix\Banner.bmp'/>-->
 
-        
+
         <!--
           Uncomment the next `WixVariable` tag to customize the installer's
           Graphical User Interface (GUI) and add a custom image to the first

@@ -164,7 +164,10 @@ pipeline {
         }
         stage('Windows') {
           steps {
-            sh 'echo Windows!'
+            withCredentials([string(credentialsId: APPVEYOR_TOKEN, variable: 'TOKEN')]) {
+                build_version = run_appveyor(TOKEN, 'alex-dow', 'psistats-rs', scmVars.GIT_BRANCH, scmVars.GIT_COMMIT)
+                download_appveyor_artifacts(build_version, 'alex-dow', 'psistats-rs');
+            }
           }
         }
       }
