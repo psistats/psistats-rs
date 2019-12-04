@@ -51,7 +51,7 @@ build_script:
   - cargo wix --verbose --nocapture
 
 artifacts:
-  - path: target/wix/**/*.exe
+  - path: target/wix/*.exe
 
 
 
