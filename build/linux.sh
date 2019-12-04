@@ -30,7 +30,7 @@ cat debian-binary control.tar.gz data.tar.xz > "/tmp/${PROJECT_NAME}-${DEBIAN_VE
 gpg -abs -o _gpuorigin "/tmp/${PROJECT_NAME}-${DEBIAN_VERSION}-combined-contents"
 ar rc $DEBIAN_FILE _gpuorigin debian-binary control.tar.gz data.tar.xz
 rm _gpuorigin debian-binary control.tar.gz data.tar.xz "/tmp/${PROJECT_NAME}-${DEBIAN_VERSION}-combined-contents"
-mv $DEBIAN_FILE target/artifacts
+mv $DEBIAN_FILE $PROJECT_DIR/target/artifacts
 
 aptly repo add psikon-devel $DEBIAN_FILE
 ~/debian_repo/update.sh

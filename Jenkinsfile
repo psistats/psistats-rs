@@ -1,4 +1,4 @@
-def appveyor_download_artifacts(accountName, projectSlug, buildVersion) {
+def appveyor_download_artifacts(accountName, projectSlug, buildVersion, targetDir) {
 
   echo '[APPVEYOR] Downloading artifacts';
 
@@ -30,7 +30,8 @@ def appveyor_download_artifacts(accountName, projectSlug, buildVersion) {
     def f = new File(it.fileName);
     def fn = f.getName();
     def encodedFn = java.net.URLEncoder.encode(it.fileName, 'UTF-8');
-    sh(script: """mkdir -p target/artifacts && wget -O target/artifacts/${fn} https://ci.appveyor.com/api/buildjobs/${job_id}.artifacts/${encodedFn}""");
+    sh(script: """mkdir -p ${targetDir} && wget -O ${targetDir}/${fn} https://ci.appveyor.com/api/buildjobs/${job_id}.artifacts/${encodedFn}""");
+    echo "[APPVEYOR] Artifact downloaded to ${targetDir}/${fn}"
   };
 }
 
@@ -90,6 +91,27 @@ def appveyor_build_status(appveyorToken, accountName, projectSlug, buildVersion)
 
   return build_data.build.status;
 
+}
+
+def appveyor_wait(appveyorToken, accountName, projectSlug, buildVersion) {
+  def appveyorFinished = false;
+
+  def buildStatus = ""
+
+  while (appveyorFinished == false) {
+    buildStatus = appveyor_build_status(TOKEN, 'alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
+    if (buildStatus == "success" || buildStatus == "error" || buildStatus == "failed" || buildStatus == 'cancelled') {
+      echo "[APPVEYOR] Finished. Result is ${buildStatus} ";
+      appveyorFinished = true;
+    } else {
+      echo "[APPVEYOR] Build status is ${buildStatus}";
+      sleep(30);
+    }
+  }
+
+  if (buildStatus != "success") {
+    error("Appveyor failed to build! Version: ${env.APPVEYOR_BUILD_VERSION} - Status: ${buildStatus}")
+  }
 }
 
 
@@ -179,28 +201,11 @@ pipeline {
               }
             }
 
-            stage('Wait for Appveyor') {
+            stage('Building') {
               steps {
                 withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
                   script {
-                    def appveyorFinished = false;
-
-                    def buildStatus = ""
-
-                    while (appveyorFinished == false) {
-                      buildStatus = appveyor_build_status(TOKEN, 'alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
-                      if (buildStatus == "success" || buildStatus == "error" || buildStatus == "failed" || buildStatus == 'cancelled') {
-                        echo "[APPVEYOR] Finished. Result is ${buildStatus} ";
-                        appveyorFinished = true;
-                      } else {
-                        echo "[APPVEYOR] Build status is ${buildStatus}";
-                        sleep(30);
-                      }
-                    }
-
-                    if (buildStatus != "success") {
-                      error("Appveyor failed to build! Version: ${env.APPVEYOR_BUILD_VERSION} - Status: ${buildStatus}")
-                    }
+                    appveyor_wait(TOKEN, 'alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
                   }
                 }
               }
@@ -209,7 +214,7 @@ pipeline {
             stage('Download Appveyor Artifacts') {
               steps {
                 script {
-                  appveyor_download_artifacts('alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
+                  appveyor_download_artifacts('alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION, 'target/artifacts');
                 }
               }
             }
