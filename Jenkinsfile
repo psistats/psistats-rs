@@ -27,8 +27,10 @@ def appveyor_download_artifacts(accountName, projectSlug, buildVersion) {
 // https://ci.appveyor.com/api/buildjobs/00isd7y2mvy3pvam/artifacts/target%2Fwix%2Fpsistats-0.1.0-beta-x86_64.msi
   build_obj.each {
     echo "[APPVEYOR] Artifact found: ${it.fileName}";
-    def fn = java.net.URLEncoder.encode(it.fileName, 'UTF-8');
-    sh(script: """wget https://ci.appveyor.com/api/buildjobs/${job_id}.artifacts/${fn}""");
+    def f = new File(if.fileName);
+    def fn = f.getName();
+    def encodedFn = java.net.URLEncoder.encode(it.fileName, 'UTF-8');
+    sh(script: """wget -O target/${fn} https://ci.appveyor.com/api/buildjobs/${job_id}.artifacts/${encodedFn}""");
   };
 }
 
