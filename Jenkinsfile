@@ -69,6 +69,7 @@ def appveyor_start_build(appveyorToken, accountName, projectSlug, branch, commit
 
   def build_obj = new groovy.json.JsonSlurperClassic().parseText(content)
   echo "[APPVEYOR] Appveyor build number: ${build_obj.buildNumber}";
+  echo "[APPVEYOR] Appveyor build version: ${build_obj.version}";
 
   return build_obj;
 }
@@ -126,9 +127,6 @@ def updateGithubCommitStatus(build) {
 pipeline {
   agent {
     label 'master'
-  }
-  environment {
-    APPVEYOR_BUILD_VERSION = ""
   }
   stages {
     stage('Prepare') {
