@@ -5,10 +5,10 @@ TARGET=$1
 PROJECT_NAME="$( cargo config package.name | cut -d '"' -f 2 )"
 PROJECT_VERSION="$( cargo config package.version | cut -d '"' -f 2 )"
 
-declare -A TARGET_MAP
-TARGET_MAP["armv7-unknown-linux-gnueabihf"] = "armhf"
-TARGET_MAP["x86_64-unknown-linux-gnu"] = "amd64"
-PROJECT_DEB_ARCH=${TARGET_MAP["${TARGET}"]}
+declare -A target_map
+target_map["armv7-unknown-linux-gnueabihf"] = "armhf"
+target_map["x86_64-unknown-linux-gnu"] = "amd64"
+PROJECT_DEB_ARCH=${target_map[$TARGET]}
 
 
 ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
