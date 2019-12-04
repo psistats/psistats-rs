@@ -38,7 +38,8 @@ def appveyor_start_build(appveyorToken, accountName, projectSlug, branch, commit
   def request = [:]
   request['accountName'] = accountName;
   request['projectSlug'] = projectSlug;
-  request['environmentVariables'] = env.getEnvironment();
+  request['environmentVariables'] = [:];
+  request['environmentVariables']['JENKINS_BUILD_NUMBER'] = env.BUILD_NUMBER;
 
   if (branch.startsWith('PR')) {
     echo '[APPVEYOR] Building a pull request';
