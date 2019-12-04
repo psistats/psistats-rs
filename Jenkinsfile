@@ -151,7 +151,7 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
         echo groovy.json.JsonOutput.prettyPrint(status_content);
         def build_data = new groovy.json.JsonSlurperClassic().parseText(status_content)
 
-        if (build_data.build.status == "queued" || build_data.build.status == "running") {
+        if (build_data.build.status == "queued" || build_data.build.status == "running" || build_data.build.status == "starting") {
           echo "[APPVEYOR] Waiting ... ";
           sleep(30);
         } else {
