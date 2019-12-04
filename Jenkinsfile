@@ -1,3 +1,115 @@
+def download_appveyor_artifacts(build_version, accountName, projectSlug) {
+
+  debug('[APPVEYOR] Downloading artifacts');
+
+  def content = httpRequest(
+    url: "https://ci.appveyor.com/api/projects/${accountName}/${projectSlug}/build/${build_version}",
+    customHeaders: [
+      [name: 'Accept', value: 'application/json']
+    ]
+  );
+  debug(groovy.json.JsonOutput.prettyPrint(content.getContent()));
+  def build_obj = new groovy.json.JsonSlurperClassic().parseText(content.getContent());
+
+  def job_id = build_obj.build.jobs[0].jobId;
+
+  def artifact_response = httpRequest(
+    url: "https://ci.appveyor.com/api/buildjobs/${job_id}/artifacts",
+    customHeaders: [
+      [name: 'Accept', value: 'application/json']
+    ]
+  );
+
+  def artifact_response_content = artifact_response.getContent();
+  debug(artifact_response_content);
+
+  build_obj = new groovy.json.JsonSlurperClassic().parseText(artifact_response_content);
+
+  build_obj.each {
+    debug("[APPVEYOR] Artifact found: ${it.fileName}");
+  };
+
+
+}
+
+def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
+    debug('[APPVEYOR] Starting')
+
+    def request = [:]
+    request['accountName'] = accountName
+    request['projectSlug'] = projectSlug
+    request['environmentVariables'] = env.environment;
+
+    if (branch.startsWith('PR')) {
+        debug('Building a pull request')
+        def pr = branch.split('-')[1]
+        request['pullRequestId'] = pr
+    } else {
+        debug("Building: ${branch} : ${commitId}")
+        request['branch'] = branch
+        request['commitId'] = commitId
+    }
+
+    def request_body = new groovy.json.JsonBuilder(request).toPrettyString();
+    debug("[APPVEYOR] Request body: ${request_body}")
+
+    def build_response = httpRequest(
+        url: 'https://ci.appveyor.com/api/builds',
+        httpMode: 'POST',
+        customHeaders: [
+            [name: 'Authorization', value: "Bearer ${appveyor_token}"],
+            [name: 'Content-type', value: 'application/json']
+        ],
+        requestBody: request_body
+    )
+
+    def content = build_response.getContent();
+    debug(groovy.json.JsonOutput.prettyPrint(content));
+
+
+    def build_obj = new groovy.json.JsonSlurperClassic().parseText(content)
+
+    debug("[APPVEYOR] Build ID: ${build_obj.buildId}");
+    debug("[APPVEYOR] Build Version: ${build_obj.version}");
+
+    def appveyor_status = 'n/a';
+    def appveyor_finished = false;
+
+
+    while (appveyor_finished != true) {
+        def status_response = httpRequest(
+            url: "https://ci.appveyor.com/api/projects/${accountName}/${projectSlug}/build/${build_obj.version}",
+            httpMode: 'GET',
+            customHeaders: [
+                [name: 'Authorization', value: "Bearer ${appveyor_token}"],
+                [name: 'Accept', value: 'application/json']
+            ]
+        )
+
+        def status_content = status_response.getContent()
+        debug(groovy.json.JsonOutput.prettyPrint(status_content));
+        def build_data = new groovy.json.JsonSlurperClassic().parseText(status_content)
+
+        if (build_data.build.status == "queued" || build_data.build.status == "running") {
+          debug("[APPVEYOR] Waiting ... ");
+          sleep(5);
+        } else {
+          appveyor_finished = true;
+          appveyor_status   = build_data.build.status;
+        }
+    }
+
+    debug("[APPVEYOR] Build completed - status: ${appveyor_status}")
+
+    if (appveyor_status != "success") {
+        error("Appveyor build failed.")
+    }
+
+    return build_obj.version;
+}
+
+
+
 def getRepoURL() {
   sh "git config --get remote.origin.url > .git/remote-url"
   return readFile(".git/remote-url").trim()
@@ -45,8 +157,14 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh 'cargo build --bin psistats --release'
-
+        parallel: {
+          linux: {
+            sh 'cargo build --bin psistats --release --verbose'
+          },
+          windows: {
+            echo 'Windows!'
+          }
+        }
       }
     }
     stage('Publish') {

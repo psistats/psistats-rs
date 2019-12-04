@@ -48,7 +48,7 @@ install:
 # source: https://github.com/starkat99/appveyor-rust/blob/master/appveyor.yml#L113
 build_script:
   - cargo build --bin psistats --release --verbose
-  - cargo wix --verbose
+  - cargo wix --verbose --nocapture
 
 
 
