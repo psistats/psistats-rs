@@ -30,7 +30,7 @@ def appveyor_download_artifacts(accountName, projectSlug, buildVersion) {
     def f = new File(it.fileName);
     def fn = f.getName();
     def encodedFn = java.net.URLEncoder.encode(it.fileName, 'UTF-8');
-    sh(script: """mkdir -P target/artifacts && wget -O target/artifacts/${fn} https://ci.appveyor.com/api/buildjobs/${job_id}.artifacts/${encodedFn}""");
+    sh(script: """mkdir -p target/artifacts && wget -O target/artifacts/${fn} https://ci.appveyor.com/api/buildjobs/${job_id}.artifacts/${encodedFn}""");
   };
 }
 
@@ -154,7 +154,6 @@ pipeline {
             }
             stage('Build Raspberry Pi') {
               steps {
-                sh 'rm -rf ~/.cargo/registry/*'
                 sh 'cargo clean'
                 sh 'cargo build --bin psistats --release --verbose --target armv7-unknown-linux-gnueabihf'
               }
