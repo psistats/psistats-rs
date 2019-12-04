@@ -166,7 +166,7 @@ pipeline {
           steps {
             withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
               script {
-                def build_version = run_appveyor(TOKEN, 'alex-dow', 'psistats-rs', scmVars.GIT_BRANCH, scmVars.GIT_COMMIT)
+                def build_version = run_appveyor(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT);
                 download_appveyor_artifacts(build_version, 'alex-dow', 'psistats-rs');
               }
             }
