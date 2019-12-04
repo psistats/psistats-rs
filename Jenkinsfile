@@ -1,6 +1,6 @@
 def download_appveyor_artifacts(build_version, accountName, projectSlug) {
 
-  debug('[APPVEYOR] Downloading artifacts');
+  echo '[APPVEYOR] Downloading artifacts';
 
   def content = httpRequest(
     url: "https://ci.appveyor.com/api/projects/${accountName}/${projectSlug}/build/${build_version}",
@@ -8,7 +8,7 @@ def download_appveyor_artifacts(build_version, accountName, projectSlug) {
       [name: 'Accept', value: 'application/json']
     ]
   );
-  debug(groovy.json.JsonOutput.prettyPrint(content.getContent()));
+  echo groovy.json.JsonOutput.prettyPrint(content.getContent());
   def build_obj = new groovy.json.JsonSlurperClassic().parseText(content.getContent());
 
   def job_id = build_obj.build.jobs[0].jobId;
@@ -26,14 +26,14 @@ def download_appveyor_artifacts(build_version, accountName, projectSlug) {
   build_obj = new groovy.json.JsonSlurperClassic().parseText(artifact_response_content);
 
   build_obj.each {
-    debug("[APPVEYOR] Artifact found: ${it.fileName}");
+    echo "[APPVEYOR] Artifact found: ${it.fileName}";
   };
 
 
 }
 
 def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
-    debug('[APPVEYOR] Starting')
+    echo '[APPVEYOR] Starting';
 
     def request = [:]
     request['accountName'] = accountName
@@ -41,7 +41,7 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
     request['environmentVariables'] = env.environment;
 
     if (branch.startsWith('PR')) {
-        debug('Building a pull request')
+        echo 'Building a pull request'
         def pr = branch.split('-')[1]
         request['pullRequestId'] = pr
     } else {
@@ -51,7 +51,7 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
     }
 
     def request_body = new groovy.json.JsonBuilder(request).toPrettyString();
-    debug("[APPVEYOR] Request body: ${request_body}")
+    echo "[APPVEYOR] Request body: ${request_body}";
 
     def build_response = httpRequest(
         url: 'https://ci.appveyor.com/api/builds',
@@ -69,8 +69,8 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
 
     def build_obj = new groovy.json.JsonSlurperClassic().parseText(content)
 
-    debug("[APPVEYOR] Build ID: ${build_obj.buildId}");
-    debug("[APPVEYOR] Build Version: ${build_obj.version}");
+    echo "[APPVEYOR] Build ID: ${build_obj.buildId}";
+    echo "[APPVEYOR] Build Version: ${build_obj.version}";
 
     def appveyor_status = 'n/a';
     def appveyor_finished = false;
@@ -87,11 +87,11 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
         )
 
         def status_content = status_response.getContent()
-        debug(groovy.json.JsonOutput.prettyPrint(status_content));
+        echo groovy.json.JsonOutput.prettyPrint(status_content);
         def build_data = new groovy.json.JsonSlurperClassic().parseText(status_content)
 
         if (build_data.build.status == "queued" || build_data.build.status == "running") {
-          debug("[APPVEYOR] Waiting ... ");
+          echo "[APPVEYOR] Waiting ... ";
           sleep(5);
         } else {
           appveyor_finished = true;
@@ -99,10 +99,10 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
         }
     }
 
-    debug("[APPVEYOR] Build completed - status: ${appveyor_status}")
+    echo "[APPVEYOR] Build completed - status: ${appveyor_status}";
 
     if (appveyor_status != "success") {
-        error("Appveyor build failed.")
+        echo "Appveyor build failed.";
     }
 
     return build_obj.version;
@@ -166,7 +166,10 @@ pipeline {
           steps {
             withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
               script {
+                echo "[APPVEYOR] Starting appveyor";
                 def build_version = run_appveyor(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT);
+
+                echo "[APPVEYOR] download_appveyor_artifacts()";
                 download_appveyor_artifacts(build_version, 'alex-dow', 'psistats-rs');
               }
             }
