@@ -21,7 +21,7 @@ def download_appveyor_artifacts(build_version, accountName, projectSlug) {
   );
 
   def artifact_response_content = artifact_response.getContent();
-  debug(artifact_response_content);
+  echo artifact_response_content;
 
   build_obj = new groovy.json.JsonSlurperClassic().parseText(artifact_response_content);
 
@@ -45,7 +45,7 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
         def pr = branch.split('-')[1]
         request['pullRequestId'] = pr
     } else {
-        debug("Building: ${branch} : ${commitId}")
+        echo "Building: ${branch} : ${commitId}";
         request['branch'] = branch
         request['commitId'] = commitId
     }
@@ -64,7 +64,7 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
     )
 
     def content = build_response.getContent();
-    debug(groovy.json.JsonOutput.prettyPrint(content));
+    echo groovy.json.JsonOutput.prettyPrint(content);
 
 
     def build_obj = new groovy.json.JsonSlurperClassic().parseText(content)
@@ -151,7 +151,6 @@ pipeline {
         updateGithubCommitStatus(currentBuild)
         sh 'cargo clean'
         sh 'cargo install cargo-deb || true'
-        sh 'cargo install cargo-rpm || true'
         sh 'cargo install cargo-config || true'
       }
     }
