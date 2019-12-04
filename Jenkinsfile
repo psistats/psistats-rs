@@ -55,7 +55,7 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
     echo "[APPVEYOR] Token: ${appveyor_token}";
 
     def build_response = httpRequest(
-        url: 'https://ci.appveyor.com/api/builds',
+        url: "https://ci.appveyor.com/api/account/${accountName}/builds",
         httpMode: 'POST',
         customHeaders: [
             [name: 'Authorization', value: "Bearer ${appveyor_token}"],
