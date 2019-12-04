@@ -65,7 +65,6 @@ def appveyor_start_build(appveyorToken, accountName, projectSlug, branch, commit
   )
 
   def content = build_response.getContent();
-  echo "[APPVEYOR] Response: ${content}";
 
   def build_obj = new groovy.json.JsonSlurperClassic().parseText(content)
   echo "[APPVEYOR] Appveyor build number: ${build_obj.buildNumber}";
@@ -85,7 +84,6 @@ def appveyor_build_status(appveyorToken, accountName, projectSlug, buildVersion)
   )
 
   def status_content = status_response.getContent()
-  echo groovy.json.JsonOutput.prettyPrint(status_content);
   def build_data = new groovy.json.JsonSlurperClassic().parseText(status_content)
 
   return build_data.build.status;
