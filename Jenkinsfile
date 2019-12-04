@@ -64,7 +64,7 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
     )
 
     def content = build_response.getContent();
-    echo groovy.json.JsonOutput.prettyPrint(content);
+    echo "[APPVEYOR] Response: ${content}";
 
 
     def build_obj = new groovy.json.JsonSlurperClassic().parseText(content)
@@ -92,7 +92,7 @@ def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
 
         if (build_data.build.status == "queued" || build_data.build.status == "running") {
           echo "[APPVEYOR] Waiting ... ";
-          sleep(5);
+          sleep(30);
         } else {
           appveyor_finished = true;
           appveyor_status   = build_data.build.status;
@@ -156,11 +156,13 @@ pipeline {
     }
     stage('Build') {
       parallel {
+        /*
         stage('Linux') {
           steps {
             sh 'cargo build --bin psistats --release --verbose'
           }
         }
+        */
         stage('Windows') {
           steps {
             withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
