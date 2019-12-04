@@ -176,13 +176,17 @@ pipeline {
 
                     while (appveyorFinished == false) {
                       def buildStatus = appveyor_build_status(TOKEN, 'alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
-                      if (buildStatus == "success" || buildStatus == "error" || buildStatus == "failed") {
+                      if (buildStatus == "success" || buildStatus == "error" || buildStatus == "failed" || buildStatus == 'cancelled') {
                         echo "[APPVEYOR] Finished. Result is ${buildStatus} ";
                         appveyorFinished = true;
                       } else {
                         echo "[APPVEYOR] Build status is ${buildStatus}";
                         sleep(30);
                       }
+                    }
+
+                    if (buildStatus != "success") {
+                      error("Appveyor failed to build! Version: ${env.APPVEYOR_BUILD_VERSION} - Status: ${buildStatus}")
                     }
                   }
                 }
@@ -204,6 +208,7 @@ pipeline {
       steps {
         archiveArtifacts artifacts: 'target/release/psistats', onlyIfSuccessful: true
         archiveArtifacts artifacts: 'target/debian/*.deb', onlyIfSuccessful: true
+        archiveArtifacts artifacts: 'target/*.msi', onlyIfSuccessful: true
       }
     }
   }
