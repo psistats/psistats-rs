@@ -50,6 +50,9 @@ build_script:
   - cargo build --bin psistats --release --verbose
   - cargo wix --verbose --nocapture
 
+artifacts:
+  - path: target/wix/**/*.exe
+
 
 
 # Equivalent to Travis' `script` phase

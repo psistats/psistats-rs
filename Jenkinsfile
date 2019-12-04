@@ -32,6 +32,64 @@ def download_appveyor_artifacts(build_version, accountName, projectSlug) {
 
 }
 
+def appveyor_start_build(appveyorToken, accountName, projectSlug, branch, commitId) {
+  echo '[APPVEYOR] Starting appveyor job';
+
+  def request = [:]
+  request['accountName'] = accountName;
+  request['projectSlug'] = projectSlug;
+  request['environmentVariables'] = env;
+
+  if (branch.startsWith('PR')) {
+    echo '[APPVEYOR] Building a pull request';
+    def pr = branch.split('-')[1];
+    request['pullRequestId'] = pr;
+  } else {
+    echo "[APPVEYOR] Building ${branch} : ${commitId}";
+    request['branch'] = branch;
+    request['commitId'] = commitId;
+  }
+
+  def requestBody = new groovy.json.JsonBuilder(request).toPrettyString();
+
+  // echo "[APPVEYOR] Request body: ${request_body}";
+  def build_response = httpRequest(
+    url: "https://ci.appveyor.com/api/account/${accountName}/builds",
+    httpMode: 'POST',
+    customHeaders: [
+      [name: 'Authorization', value: "Bearer ${appveyorToken}"],
+      [name: 'Content-type', value: 'application/json']
+    ],
+    requestBody: requestBody
+  )
+
+  def content = build_response.getContent();
+  echo "[APPVEYOR] Response: ${content}";
+
+  def build_obj = new groovy.json.JsonSlurperClassic().parseText(content)
+  echo "[APPVEYOR] Appveyor build number: ${build_obj.buildNumber}";
+
+  return build_obj;
+}
+
+def appveyor_build_status(appveyorToken, accountName, projectSlug, buildVersion) {
+  def status_response = httpRequest(
+      url: "https://ci.appveyor.com/api/projects/${accountName}/${projectSlug}/build/${buildVersion}",
+      httpMode: 'GET',
+      customHeaders: [
+          [name: 'Authorization', value: "Bearer ${appveyorToken}"],
+          [name: 'Accept', value: 'application/json']
+      ]
+  )
+
+  def status_content = status_response.getContent()
+  echo groovy.json.JsonOutput.prettyPrint(status_content);
+  def build_data = new groovy.json.JsonSlurperClassic().parseText(status_content)
+
+  return build_data.build.status;
+
+}
+
 def run_appveyor(appveyor_token, accountName, projectSlug, branch, commitId) {
     echo '[APPVEYOR] Starting';
 
@@ -147,6 +205,9 @@ pipeline {
   agent {
     label 'master'
   }
+  environment {
+    APPVEYOR_BUILD_VERSION = ""
+  }
   stages {
     stage('Prepare') {
       steps {
@@ -169,11 +230,20 @@ pipeline {
           steps {
             withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
               script {
-                echo "[APPVEYOR] Starting appveyor";
-                def build_version = run_appveyor(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT);
+                def appveyorBuild = appveyor_start_build(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT);
 
-                echo "[APPVEYOR] download_appveyor_artifacts()";
-                download_appveyor_artifacts(build_version, 'alex-dow', 'psistats-rs');
+                def appveyorFinished = false;
+
+                while (appveyorFinished == false) {
+                  def buildStatus = appveyor_build_status(TOKEN, 'alex-dow', 'psistats-rs', appveyorBuild.version);
+                  if (buildStatus == "queued" || buildStatus == "running") {
+                    echo "[APPVEYOR] Waiting ... ";
+                    sleep(30);
+                  } else {
+                    echo "[APPVEYOR] Status is ${buildStatus}";
+                    appveyorFinished = true;
+                  }
+                }
               }
             }
           }
