@@ -30,7 +30,7 @@ def appveyor_download_artifacts(accountName, projectSlug, buildVersion) {
     def f = new File(it.fileName);
     def fn = f.getName();
     def encodedFn = java.net.URLEncoder.encode(it.fileName, 'UTF-8');
-    sh(script: """wget -O target/${fn} https://ci.appveyor.com/api/buildjobs/${job_id}.artifacts/${encodedFn}""");
+    sh(script: """mkdir -P target/artifacts && wget -O target/artifacts/${fn} https://ci.appveyor.com/api/buildjobs/${job_id}.artifacts/${encodedFn}""");
   };
 }
 
@@ -220,9 +220,7 @@ pipeline {
     }
     stage('Publish') {
       steps {
-        archiveArtifacts artifacts: 'target/release/psistats', onlyIfSuccessful: true
-        archiveArtifacts artifacts: 'target/debian/*.deb', onlyIfSuccessful: true
-        archiveArtifacts artifacts: 'target/*.msi', onlyIfSuccessful: true
+        archiveArtifacts artifacts: 'target/artifacts/**/*', onlyIfSuccessful: true
       }
     }
   }
