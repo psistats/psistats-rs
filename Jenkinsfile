@@ -30,7 +30,9 @@ def appveyor_download_artifacts(accountName, projectSlug, buildVersion, targetDi
     def f = new File(it.fileName);
     def fn = f.getName();
     def encodedFn = java.net.URLEncoder.encode(it.fileName, 'UTF-8');
-    sh(script: """mkdir -p ${targetDir} && wget -O ${targetDir}/${fn} https://ci.appveyor.com/api/buildjobs/${job_id}.artifacts/${encodedFn}""");
+    def url = "https://ci.appveyor.com/api/buildjobs/${job_id}/artifacts/${encodedFn}";
+    echo "[APPVEYOR] Downloading ${url}"
+    sh(script: """mkdir -p ${targetDir} && wget -O ${targetDir}/${fn} ${url}""");
     echo "[APPVEYOR] Artifact downloaded to ${targetDir}/${fn}"
   };
 }
