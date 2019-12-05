@@ -4,6 +4,9 @@ use crate::reporters::Report;
 use toml::Value;
 use toml::map::Map;
 use std::sync::Mutex;
+use std::iter;
+use rand::{Rng, thread_rng};
+use rand::distributions::Alphanumeric;
 
 lazy_static! {
     static ref CLIENT: Mutex<Mqtt> = Mutex::new(Mqtt::new());
@@ -41,11 +44,23 @@ impl Mqtt {
                 let mqtt_port = mqtt_conf.get("port").unwrap().as_integer().unwrap();
                 let mqtt_user = mqtt_conf.get("username").unwrap().as_str().unwrap();
                 let mqtt_pass = mqtt_conf.get("password").unwrap().as_str().unwrap();
-                let client_id = mqtt_conf.get("client_id").unwrap().as_str().unwrap();
+                let client_id_prefix = mqtt_conf.get("client_id").unwrap().as_str().unwrap();
+                let mut rng = thread_rng();
+                let client_id_rnd: String = iter::repeat(())
+                  .map(|()| rng.sample(Alphanumeric))
+                  .take(8)
+                  .collect();
 
-                let mqtt_options = MqttOptions::new(client_id, mqtt_host, mqtt_port as u16)
-                    .set_security_opts(SecurityOptions::UsernamePassword(mqtt_user.to_string(), mqtt_pass.to_string()));
-                
+                let client_id = format!("{}-{}", client_id_prefix, client_id_rnd);
+
+                info!("Starting MQTT Connection: {}:{} w/ client id {}", mqtt_host, mqtt_port, client_id);
+
+                let mut mqtt_options = MqttOptions::new(client_id, mqtt_host, mqtt_port as u16);
+
+                if mqtt_user.to_string() != "" {
+                    mqtt_options = mqtt_options.set_security_opts(SecurityOptions::UsernamePassword(mqtt_user.to_string(), mqtt_pass.to_string()));
+                }
+
                 match MqttClient::start(mqtt_options) {
                     Ok(ok) => {
                         let mut mqtt_client = ok.0;
@@ -53,11 +68,11 @@ impl Mqtt {
 
                         let commands_topic = format!("{}/commands", publish_queue);
                         mqtt_client.subscribe(commands_topic, QoS::AtLeastOnce).unwrap();
-        
+
                         self.client = Option::from(mqtt_client.clone());
                         self.queue  = Option::from(notifications);
                         self.suffix = Option::from(publish_queue);
-        
+
                         return Some(mqtt_client);
                     },
                     Err(err) => {
@@ -87,7 +102,7 @@ impl Mqtt {
 pub fn publish(conf: &Map<String, Value>, report: &Report) {
     let mut mqtt = CLIENT.lock().unwrap();
     let client   = mqtt.get_client(conf);
-    
+
 
     match client {
         Some(mut c) => {
