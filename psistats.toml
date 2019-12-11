@@ -19,6 +19,10 @@ interval=0
 enabled=true
 interval=0
 
+[r_pingpong]
+enabled=true
+interval=0
+
 [p_log]
 enabled=true
 

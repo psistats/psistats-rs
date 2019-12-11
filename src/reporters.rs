@@ -2,6 +2,7 @@ pub mod cpu;
 pub mod mem;
 pub mod ip_addrs;
 pub mod os;
+pub mod pingpong;
 use std::{fmt, error};
 use serde::{Deserialize, Serialize};
 use toml::Value;
@@ -17,6 +18,7 @@ pub fn get_reporter(id: String) -> Option<ReporterCb> {
         "mem" => Some(mem::mem_reporter),
         "ip_addrs" => Some(ip_addrs::ip_addrs_reporter),
         "os" => Some(os::os_reporter),
+        "pingpong" => Some(pingpong::pingpong_reporter),
         _ => None
     }
 }
