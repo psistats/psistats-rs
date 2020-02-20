@@ -176,12 +176,18 @@ pipeline {
                 sh 'build/linux.sh x86_64-unknown-linux-gnu'
               }
             }
+            when {
+              branch 'master'
+            }
             stage('Build Raspberry Pi') {
               steps {
                 sh 'cargo build --bin psistats --target armv7-unknown-linux-gnueabihf --release'
               }
             }
             stage('Package Raspberry Pi')  {
+              when {
+                branch 'master'
+              }
               steps {
                 sh 'build/linux.sh armv7-unknown-linux-gnueabihf'
               }
