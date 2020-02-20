@@ -17,9 +17,9 @@ lazy_static! {
 pub fn cpu_reporter(_: &Map<String, Value>) -> Report {
 
     let mut sys = CPU_SYSTEM.lock().unwrap();
-    sys.refresh_system();
+    sys.refresh_cpu();
 
-    let procs = sys.get_processor_list();
+    let procs = sys.get_processors();
 
     let msg: Vec<f32> = procs.iter().map(|p| {
         return p.get_cpu_usage();

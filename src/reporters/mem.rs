@@ -17,7 +17,7 @@ lazy_static! {
 pub fn mem_reporter(_: &Map<String, Value>) -> Report {
 
     let mut sys = MEM_SYSTEM.lock().unwrap();
-    sys.refresh_system();
+    sys.refresh_memory();
 
     let msg = vec![sys.get_total_memory(), sys.get_free_memory()];
 
