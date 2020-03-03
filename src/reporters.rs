@@ -7,6 +7,8 @@ use std::{fmt, error};
 use serde::{Deserialize, Serialize};
 use toml::Value;
 use toml::map::Map;
+use std::future::Future;
+
 
 
 #[derive(Debug, Clone)]
@@ -35,7 +37,8 @@ impl error::Error for ReporterError {
     }
 }
 
-pub type ReporterCb = fn(conf: &Map<String, Value>) -> Report;
+
+pub type ReporterCb = fn(conf: &Map<String, Value>) -> impl Future<Report>;
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Report {
