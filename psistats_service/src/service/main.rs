@@ -45,7 +45,8 @@ pub fn main() {
         pl.load_plugins(plugins, &mut registrar).unwrap();
     }
 
-    println!("Total init callbacks: {}", registrar.count(PsistatsFunctionTypes::INIT));
-    println!("Total report callbacks: {}", registrar.count(PsistatsFunctionTypes::REPORT));
-    println!("Total publish callbacks: {}", registrar.count(PsistatsFunctionTypes::PUBLISH));
+    println!("Total init callbacks: {}", registrar.count_fn(PsistatsFunctionTypes::INIT));
+    println!("Total report callbacks: {}", registrar.count_fn(PsistatsFunctionTypes::REPORT));
+    println!("Total publish callbacks: {}", registrar.count_fn(PsistatsFunctionTypes::PUBLISH));
+    println!("Total libraries: {}", registrar.count_libs());
 }

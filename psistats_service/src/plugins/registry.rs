@@ -43,11 +43,15 @@ impl PluginRegistrar for DefaultPluginRegistrar {
         self.libs.push(lib);
     }
 
-    fn count(&self, fn_type: PsistatsFunctionTypes) -> usize {
+    fn count_fn(&self, fn_type: PsistatsFunctionTypes) -> usize {
         match fn_type {
             PsistatsFunctionTypes::INIT => self.init_fn.len(),
             PsistatsFunctionTypes::REPORT => self.report_fn.len(),
             PsistatsFunctionTypes::PUBLISH => self.publish_fn.len(),
         }
+    }
+
+    fn count_libs(&self) -> usize {
+        return self.libs.len();
     }
 }

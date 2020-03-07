@@ -25,7 +25,8 @@ pub trait PluginRegistrar {
     fn register_lib(
         &mut self, lib: Rc<libloading::Library>
     );
-    fn count(&self, fn_type: PsistatsFunctionTypes) -> usize;
+    fn count_fn(&self, fn_type: PsistatsFunctionTypes) -> usize;
+    fn count_libs(&self) -> usize;
 }
 
 #[derive(Copy, Clone)]
