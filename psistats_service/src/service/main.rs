@@ -2,7 +2,7 @@ use crate::plugins::api::PluginRegistrar;
 use crate::plugins::api::PsistatsFunctionTypes;
 use crate::plugins::loader::PluginLoader;
 use crate::plugins::registry::DefaultPluginRegistrar;
-use clap::{App, Arg, SubCommand};
+use clap::{App, Arg};
 use std::alloc::System;
 
 #[global_allocator]

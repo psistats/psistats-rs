@@ -2,7 +2,7 @@ use crate::plugins::api::{PluginRegistrar, PsistatsPlugin};
 use glob::glob;
 use libloading::Library;
 use std::rc::Rc;
-use std::{collections::HashMap, env, ffi::OsStr, io, path::PathBuf, path::Path};
+use std::{ffi::OsStr, io, path::Path};
 
 pub struct PluginLoader;
 
@@ -36,16 +36,16 @@ impl PluginLoader {
     ) -> Result<(), String>
     {
         
-        let mut pdir = "";
+        let pdir: String;
 
         match plugin_dir.as_ref().to_str() {
-            None => pdir = ".",
-            Some(val) => pdir = val,
+            None => pdir = ".".to_string(),
+            Some(val) => pdir = val.to_string(),
         };
 
-        let path = Path::new(pdir);
+        let path = Path::new(&pdir);
 
-        if (path.exists() == false) {
+        if path.exists() == false {
             return Err(format!("Plugin directory {} does not exist!", pdir).to_string());
         }
 
