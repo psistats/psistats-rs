@@ -4,6 +4,7 @@ use crate::plugins::api::PsistatsFunctionTypes;
 use std::collections::HashMap;
 use std::rc::Rc;
 use libloading::Library;
+use toml::Value;
 
 #[derive(Default)]
 pub struct DefaultPluginRegistrar {
@@ -53,5 +54,20 @@ impl PluginRegistrar for DefaultPluginRegistrar {
 
     fn count_libs(&self) -> usize {
         return self.libs.len();
+    }
+
+    fn call(&self, name: &str, fn_type: PsistatsFunctionTypes) {
+        let val = Value::from("Foobar");
+        match fn_type {
+            PsistatsFunctionTypes::INIT => {
+                self.init_fn.get(name).unwrap().call(val);
+            }
+            PsistatsFunctionTypes::REPORT => {
+                self.report_fn.get(name).unwrap().call(val);
+            }
+            PsistatsFunctionTypes::PUBLISH => {
+                self.publish_fn.get(name).unwrap().call(val);
+            }
+        };
     }
 }

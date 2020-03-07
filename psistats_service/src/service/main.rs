@@ -4,6 +4,8 @@ use crate::plugins::loader::PluginLoader;
 use crate::plugins::registry::DefaultPluginRegistrar;
 use clap::{App, Arg};
 use std::alloc::System;
+use std::thread;
+use std::time::Duration;
 
 #[global_allocator]
 static ALLOCATOR: System = System;
@@ -49,4 +51,10 @@ pub fn main() {
     println!("Total report callbacks: {}", registrar.count_fn(PsistatsFunctionTypes::REPORT));
     println!("Total publish callbacks: {}", registrar.count_fn(PsistatsFunctionTypes::PUBLISH));
     println!("Total libraries: {}", registrar.count_libs());
+
+    registrar.call("cpu", PsistatsFunctionTypes::INIT);
+    loop {
+        registrar.call("cpu", PsistatsFunctionTypes::REPORT);
+        thread::sleep(Duration::from_millis(1000));
+    }
 }

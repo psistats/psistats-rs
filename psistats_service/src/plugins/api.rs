@@ -1,5 +1,7 @@
 use std::rc::Rc;
 use libloading;
+use serde::{Serialize, Deserialize};
+use std::fmt;
 
 pub trait PsistatsFunction {
     fn call(&self, config: toml::Value);
@@ -27,6 +29,7 @@ pub trait PluginRegistrar {
     );
     fn count_fn(&self, fn_type: PsistatsFunctionTypes) -> usize;
     fn count_libs(&self) -> usize;
+    fn call(&self, name: &str, fn_type: PsistatsFunctionTypes);
 }
 
 #[derive(Copy, Clone)]
@@ -48,4 +51,47 @@ macro_rules! export_plugin {
                 register: $register,
             };
     };
+}
+
+#[derive(Deserialize, Serialize, Clone)]
+pub struct Report {
+    pub id: String,
+    pub value: String
+}
+
+impl Report {
+    pub fn new(id: String, value: String) -> Self {
+        Report {
+            id: id,
+            value: value
+        }
+    }
+
+    pub fn to_string(&self) -> String {
+        return self.to_json();
+    }
+
+    pub fn to_json(&self) -> String {
+        let json_value: String;
+        if self.value.starts_with('{') == true || self.value.starts_with('[') == true {
+            json_value = format!("{}", self.value);
+        } else if self.value.parse::<u64>().is_ok() {
+            json_value = format!("{}", self.value);
+        } else {
+            json_value = format!("\"{}\"", self.value);
+        }
+
+        let json = format!("{{\"id\": \"{id}\", \"value\": {val}}}", 
+            id = self.id, 
+            val = json_value
+        );
+
+        return json;
+    }
+}
+
+impl fmt::Display for Report {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.to_json())
+    }
 }
