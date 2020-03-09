@@ -6,6 +6,10 @@ use clap::{App, Arg};
 use std::alloc::System;
 use std::thread;
 use std::time::Duration;
+use toml;
+use std::fs::read_to_string;
+use crate::config;
+use std::collections::HashMap;
 
 #[global_allocator]
 static ALLOCATOR: System = System;
@@ -34,8 +38,8 @@ pub fn main() {
         )
         .get_matches();
 
-    let config = matches.value_of("config").unwrap_or("psistats.toml");
-    println!("Value for config is: {}", config);
+    let c = matches.value_of("config").unwrap_or("psistats.toml");
+    println!("Value for config is: {}", c);
 
     let plugins = matches.value_of("plugins").unwrap();
     println!("Plugins dir: {}", plugins);
@@ -47,14 +51,14 @@ pub fn main() {
         pl.load_plugins(plugins, &mut registrar).unwrap();
     }
 
-    println!("Total init callbacks: {}", registrar.count_fn(PsistatsFunctionTypes::INIT));
-    println!("Total report callbacks: {}", registrar.count_fn(PsistatsFunctionTypes::REPORT));
-    println!("Total publish callbacks: {}", registrar.count_fn(PsistatsFunctionTypes::PUBLISH));
-    println!("Total libraries: {}", registrar.count_libs());
+    let conf: HashMap<String, HashMap<String, toml::Value>> = toml::from_str(&read_to_string(c).unwrap()).unwrap();
+    let raw_settings = conf.get("settings").unwrap();
+    let settings = config::Settings {
+        hostname: raw_settings.get("hostname").unwrap().as_str().unwrap().to_string(),
+        workers: raw_settings.get("workers").unwrap().as_integer().unwrap() as u16,
+        timer: raw_settings.get("timer").unwrap().as_integer().unwrap() as u32
+    };
 
-    registrar.call("cpu", PsistatsFunctionTypes::INIT);
-    loop {
-        registrar.call("cpu", PsistatsFunctionTypes::REPORT);
-        thread::sleep(Duration::from_millis(1000));
-    }
+    println!("Settings hostname: {}", settings.hostname);
+
 }
