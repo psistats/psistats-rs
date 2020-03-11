@@ -31,8 +31,14 @@ impl ReporterInitFunction for Init {
 struct Reporter;
 
 impl ReporterFunction for Reporter {
-    fn call(&self, _: &ReporterConfig) -> Result<PsistatsReport, PluginError> {
-        println!("CPU Plugin report function called!");
+    fn call(&self, conf: &ReporterConfig) -> Result<PsistatsReport, PluginError> {
+
+        let t = conf.get_config().get("show_total").unwrap().as_bool().unwrap();
+
+        if t {
+          println!("show total is true!");
+        }
+
         return cpu::get_report();
     }
 }

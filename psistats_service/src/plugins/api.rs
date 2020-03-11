@@ -59,7 +59,7 @@ impl std::error::Error for PluginError {
 pub trait PluginRegistrar {
 
     fn register_plugin(&mut self, name: &str, func: FunctionType);
- 
+
     fn register_lib(
         &mut self, lib: Rc<libloading::Library>
     );
@@ -73,8 +73,6 @@ pub trait PluginRegistrar {
 
 #[derive(Copy, Clone)]
 pub struct PsistatsPlugin {
-    pub rustc_version: &'static str,
-    pub core_version: &'static str,
     pub register: unsafe extern "C" fn(&mut Box<dyn PluginRegistrar + 'static>),
 }
 
@@ -85,9 +83,7 @@ macro_rules! export_plugin {
         #[no_mangle]
         pub static PSISTATS_PLUGIN: $crate::plugins::api::PsistatsPlugin =
             $crate::plugins::api::PsistatsPlugin {
-                rustc_version: $crate::RUSTC_VERSION,
-                core_version: $crate::CORE_VERSION,
-                register: $register,
+                register: $register
             };
     };
 }
@@ -102,7 +98,7 @@ pub enum ReportValue {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub struct PsistatsReport { 
+pub struct PsistatsReport {
     pub id: String,
     pub value: ReportValue
 }

@@ -46,7 +46,7 @@ pub fn main() {
 
     let mut registrar: Box<dyn PluginRegistrar> = Box::new(DefaultPluginRegistrar::new());
 
-    let mut pl: PluginLoader = PluginLoader::new(plugins.to_string());
+    let pl: PluginLoader = PluginLoader::new(plugins.to_string());
 
     let conf = config::ServiceConfig::from_file(PathBuf::from(c));
 

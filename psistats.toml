@@ -8,8 +8,7 @@ timer=1000
 name="cpu"
 enabled=true
 interval=0
-config.foo = "bar"
-config.horse = 100
+config.show_total=true
 
 [[r_plugin]]
 name="foobar"
