@@ -1,7 +1,6 @@
-use crate::plugins::api::PluginRegistrar;
-use crate::plugins::api::PsistatsFunctionTypes;
-use crate::plugins::loader::PluginLoader;
-use crate::plugins::registry::DefaultPluginRegistrar;
+use crate::PluginRegistrar;
+use crate::PluginLoader;
+use crate::DefaultPluginRegistrar;
 use clap::{App, Arg};
 use std::alloc::System;
 use std::thread;
@@ -10,6 +9,7 @@ use toml;
 use std::fs::read_to_string;
 use crate::config;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 #[global_allocator]
 static ALLOCATOR: System = System;
@@ -46,19 +46,22 @@ pub fn main() {
 
     let mut registrar: Box<dyn PluginRegistrar> = Box::new(DefaultPluginRegistrar::new());
 
-    let mut pl: PluginLoader = PluginLoader;
+    let mut pl: PluginLoader = PluginLoader::new(plugins.to_string());
+
+    let conf = config::ServiceConfig::from_file(PathBuf::from(c));
+
     unsafe {
-        pl.load_plugins(plugins, &mut registrar).unwrap();
+        for rconf in conf.get_reporter_configs() {
+
+            let pluginName = rconf.get_name();
+            match pl.load_plugin(pluginName, &mut registrar) {
+                Ok(()) => {
+                    println!("Plugin {} loaded", pluginName);
+                },
+                Err(err) => {
+                    println!("Plugin failed to load: {}", err);
+                }
+            }
+        }
     }
-
-    let conf: HashMap<String, HashMap<String, toml::Value>> = toml::from_str(&read_to_string(c).unwrap()).unwrap();
-    let raw_settings = conf.get("settings").unwrap();
-    let settings = config::Settings {
-        hostname: raw_settings.get("hostname").unwrap().as_str().unwrap().to_string(),
-        workers: raw_settings.get("workers").unwrap().as_integer().unwrap() as u16,
-        timer: raw_settings.get("timer").unwrap().as_integer().unwrap() as u32
-    };
-
-    println!("Settings hostname: {}", settings.hostname);
-
 }

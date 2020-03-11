@@ -3,50 +3,72 @@ use libloading;
 use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::collections::HashMap;
+use crate::{ ReporterConfig, PublisherConfig };
 
-pub trait PsistatsFunction {
-    fn call(&self, config: toml::Value);
+pub enum FunctionType {
+    Publisher(Box<dyn PublisherFunction>),
+    PublisherInit(Box<dyn PublisherInitFunction>),
+    Reporter(Box<dyn ReporterFunction>),
+    ReporterInit(Box<dyn ReporterInitFunction>)
 }
 
-pub trait PsistatsReportFunction {
-    fn call(&self) -> Result<PsistatsReport, PsistatsError>;
+pub trait ReporterFunction {
+    fn call(&self, config: &ReporterConfig) -> Result<PsistatsReport, PluginError>;
 }
 
-pub trait PsistatsInitFunction {
-    fn call(&self) -> Result<(), PsistatsError>;
+pub trait ReporterInitFunction {
+    fn call(&self, config: &ReporterConfig) -> Result<(), PluginError>;
 }
 
-pub enum PsistatsError {
-    Other(String),
+pub trait PublisherFunction {
+    fn call(&self, config: &PublisherConfig) -> Result<(), PluginError>;
 }
 
-pub enum PsistatsFunctionTypes {
-    INIT,
-    REPORT,
-    PUBLISH,
+pub trait PublisherInitFunction {
+    fn call(&self, config: &PublisherConfig) -> Result<(), PluginError>;
+}
+
+#[derive(Debug, Clone)]
+pub enum PluginError {
+    FunctionNotFound { p: String, fname: String },
+    PluginFileNotFound { p: String },
+    PluginDeclNotFound { p: String },
+    Other { p: String, msg: String },
+    Runtime { p: String,  msg: String },
+}
+
+impl fmt::Display for PluginError {
+
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            PluginError::FunctionNotFound { p, fname } => { write!(f, "Plugin {} is lacking function {}", p, fname) },
+            PluginError::PluginFileNotFound { p } => { write!(f, "Could not find plugin file for plugin {}", p) },
+            PluginError::PluginDeclNotFound { p } => { write!(f, "Plugin declration not found for plugin {}", p) },
+            PluginError::Other { p, msg } => { write!(f, "Error with plugin {}: {}", p, msg) },
+            PluginError::Runtime { p, msg } => { write!(f, "Plugin {} failed to execute: {}", p, msg) }
+        }
+    }
+}
+
+impl std::error::Error for PluginError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        None
+    }
 }
 
 pub trait PluginRegistrar {
 
-    fn register_init_fn(
-        &mut self,
-        name: &str,
-        func: Box<dyn PsistatsInitFunction>
-    );
-
-    fn register_report_fn(
-        &mut self,
-        name: &str,
-        func: Box<dyn PsistatsReportFunction>
-    );
-
+    fn register_plugin(&mut self, name: &str, func: FunctionType);
+ 
     fn register_lib(
         &mut self, lib: Rc<libloading::Library>
     );
 
-    fn get_init_fn(&self, name: &str) -> Result<&Box<dyn PsistatsInitFunction>, String>;
-    fn get_report_fn(&self, name: &str) -> Result<&Box<dyn PsistatsReportFunction>, String>;
+    fn get_reporter_init(&self, name: &str) -> Result<&Box<dyn ReporterInitFunction>, PluginError>;
+    fn get_reporter(&self, name: &str) -> Result<&Box<dyn ReporterFunction>, PluginError>;
 
+    fn get_publisher_init(&self, name: &str) -> Result<&Box<dyn PublisherInitFunction>, PluginError>;
+    fn get_publisher(&self, name: &str) -> Result<&Box<dyn PublisherFunction>, PluginError>;
 }
 
 #[derive(Copy, Clone)]
@@ -71,11 +93,6 @@ macro_rules! export_plugin {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub struct Report {
-    pub id: String,
-    pub value: String
-}
-
 pub enum ReportValue {
     Integer(i64),
     Float(f64),
@@ -84,6 +101,7 @@ pub enum ReportValue {
     Object(HashMap<String, ReportValue>)
 }
 
+#[derive(Deserialize, Serialize, Clone)]
 pub struct PsistatsReport { 
     pub id: String,
     pub value: ReportValue
@@ -103,42 +121,5 @@ impl PsistatsReport {
 
     pub fn get_value(&self) -> &ReportValue {
         return &self.value;
-    }
-}
-
-impl Report {
-    pub fn new(id: String, value: String) -> Self {
-        Report {
-            id: id,
-            value: value
-        }
-    }
-
-    pub fn to_string(&self) -> String {
-        return self.to_json();
-    }
-
-    pub fn to_json(&self) -> String {
-        let json_value: String;
-        if self.value.starts_with('{') == true || self.value.starts_with('[') == true {
-            json_value = format!("{}", self.value);
-        } else if self.value.parse::<u64>().is_ok() {
-            json_value = format!("{}", self.value);
-        } else {
-            json_value = format!("\"{}\"", self.value);
-        }
-
-        let json = format!("{{\"id\": \"{id}\", \"value\": {val}}}", 
-            id = self.id, 
-            val = json_value
-        );
-
-        return json;
-    }
-}
-
-impl fmt::Display for Report {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.to_json())
     }
 }

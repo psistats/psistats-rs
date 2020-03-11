@@ -3,34 +3,15 @@ hostname="localhost"
 workers=2
 timer=1000
 
-[r_cpu]
-enabled=true
-interval=1
 
-[r_mem]
-enabled=true
-interval=10
-
-[r_ip_addrs]
+[[r_plugin]]
+name="cpu"
 enabled=true
 interval=0
+config.foo = "bar"
+config.horse = 100
 
-[r_os]
+[[r_plugin]]
+name="foobar"
 enabled=true
 interval=0
-
-[r_pingpong]
-enabled=true
-interval=0
-
-[p_log]
-enabled=true
-
-[p_mqtt]
-enabled=true
-hostname="localhost"
-username=""
-password=""
-port=1883
-client_id="psistats-client"
-suffix="psistats"
