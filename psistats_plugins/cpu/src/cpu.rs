@@ -9,8 +9,8 @@ use psistats_service::PsistatsReport;
 use psistats_service::PluginError;
 
 lazy_static! {
-    static ref sys_channel: (Sender<String>, Receiver<String>) = unbounded();
-    static ref report_channel: (Sender<PsistatsReport>, Receiver<PsistatsReport>) = unbounded();
+    static ref SYS_CHANNEL: (Sender<String>, Receiver<String>) = unbounded();
+    static ref REPORT_CHANNEL: (Sender<PsistatsReport>, Receiver<PsistatsReport>) = unbounded();
 }
 
 pub fn start_cpu_thread() {
@@ -19,7 +19,7 @@ pub fn start_cpu_thread() {
         let mut sys = sysinfo::System::new();
 
         loop {
-            match sys_channel.1.recv() {
+            match SYS_CHANNEL.1.recv() {
                 Ok(_) => {
                     sys.refresh_cpu();
                     let procs = sys.get_processors();
@@ -29,20 +29,20 @@ pub fn start_cpu_thread() {
                     }).collect();
 
                     let pr = api::PsistatsReport::new("cpu", api::ReportValue::Array(msg));
-                    report_channel.0.send(pr).unwrap();
+                    REPORT_CHANNEL.0.send(pr).unwrap();
                 },
                 Err(_) => {
                     println!("sys_thread received error");
                 }
             }
         }
-    });    
+    });
 }
 
 pub fn get_report() -> Result<PsistatsReport, PluginError> {
-    sys_channel.0.send("Foobar!".to_string()).unwrap();
+    SYS_CHANNEL.0.send("Foobar!".to_string()).unwrap();
 
-    match report_channel.1.recv() {
+    match REPORT_CHANNEL.1.recv() {
         Ok(report) => {
             return Ok(report);
         },

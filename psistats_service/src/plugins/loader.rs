@@ -1,11 +1,9 @@
-use glob::glob;
 use libloading::Library;
 use std::rc::Rc;
-use std::{ffi::OsStr, io, path::Path, fmt};
+use std::{ffi::OsStr, fmt};
 use std;
 use crate::PluginRegistrar;
 use crate::PsistatsPlugin;
-use crate::PluginError;
 
 pub struct PluginLoader {
     plugin_dir: String
@@ -46,8 +44,10 @@ impl PluginLoader {
 
         if cfg!(target_os = "windows") {
             plugin_file = format!("{}\\plugin_{}.dll", self.plugin_dir, plugin_name.as_ref().to_str().unwrap());
+        } else if cfg!(target_os = "linux") {
+            plugin_file = format!("{}/libplugin_{}.so", self.plugin_dir, plugin_name.as_ref().to_str().unwrap());
         } else {
-            return Err(Error::Other("Plugin loader does not support host OS".to_string()));
+          return Err(Error::Other("Plugin loader does not support host OS".to_string()));
         }
 
         return self.load_plugin_file(plugin_file, registrar);
@@ -77,7 +77,7 @@ impl PluginLoader {
         println!("load_plugin() -> getting PSISTATS_PLUGIN decl");
 
         let decl_ref = lib_rc.get::<*mut PsistatsPlugin>(b"PSISTATS_PLUGIN\0");
-        let mut decl: PsistatsPlugin;
+        let decl: PsistatsPlugin;
         match decl_ref {
             Ok(dref) => {
                 decl = dref.read();

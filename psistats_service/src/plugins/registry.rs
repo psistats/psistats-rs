@@ -5,14 +5,13 @@ use crate::PluginError;
 use crate::FunctionType;
 
 use std::collections::HashMap;
-use std::collections::hash_map::Keys;
 use std::rc::Rc;
 use libloading::Library;
 
 
 #[derive(Default)]
 pub struct DefaultPluginRegistrar {
-    
+
     reporter_init: HashMap<String, Box<dyn ReporterInitFunction>>,
     reporter: HashMap<String, Box<dyn ReporterFunction>>,
     publisher_init: HashMap<String, Box<dyn PublisherInitFunction>>,

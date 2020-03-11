@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
-use toml::Value;
 use toml;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::fs::read_to_string;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -30,11 +29,11 @@ impl ReporterConfig {
     pub fn is_enabled(&self) -> bool {
         return self.enabled;
     }
-    
+
     pub fn get_config(&self) -> &HashMap<String, toml::Value> {
         return &self.config;
     }
-    
+
     pub fn get_interval(&self) -> u32 {
         return self.interval;
     }
@@ -44,7 +43,7 @@ impl ReporterConfig {
 pub struct PublisherConfig {
     name: String,
     enabled: bool,
-    
+
     #[serde(default)]
     config: HashMap<String, toml::Value>
 }
@@ -57,7 +56,7 @@ impl PublisherConfig {
     pub fn is_enabled(&self) -> bool {
         return self.enabled;
     }
-    
+
     pub fn get_config(&self) -> &HashMap<String, toml::Value> {
         return &self.config;
     }
@@ -93,7 +92,7 @@ impl ServiceConfig {
         }
     }
 
-    pub fn get_reporter_configs(&self) -> &Vec<ReporterConfig> { 
+    pub fn get_reporter_configs(&self) -> &Vec<ReporterConfig> {
         return &self.r_plugin;
     }
 
