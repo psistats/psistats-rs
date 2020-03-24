@@ -4,14 +4,14 @@ use toml;
 use std::path::PathBuf;
 use std::fs::read_to_string;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Settings {
     pub hostname: String,
     pub workers: u16,
     pub timer: u32
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReporterConfig {
     name: String,
     enabled: bool,
@@ -39,7 +39,7 @@ impl ReporterConfig {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PublisherConfig {
     name: String,
     enabled: bool,
@@ -62,9 +62,22 @@ impl PublisherConfig {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LoggingConfig {
+  level: String
+}
+
+impl LoggingConfig {
+  pub fn get_level(&self) -> &str {
+    return &self.level;
+  }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ServiceConfig {
     pub settings: Settings,
+
+    pub logging: LoggingConfig,
 
     #[serde(default)]
     pub r_plugin: Vec<ReporterConfig>,
@@ -74,7 +87,7 @@ pub struct ServiceConfig {
 }
 
 impl ServiceConfig {
-    pub fn get_publisher_config(&self, name: String) -> Option<&PublisherConfig> {
+    pub fn get_publisher_config(&self, name: &str) -> Option<&PublisherConfig> {
         let conf: Vec<&PublisherConfig> = self.p_plugin.iter().filter(|pc| pc.name == name).collect();
         if conf.len() > 0 {
             Some(conf[0])
@@ -83,7 +96,7 @@ impl ServiceConfig {
         }
     }
 
-    pub fn get_reporter_config(&self, name: String) -> Option<&ReporterConfig> {
+    pub fn get_reporter_config(&self, name: &str) -> Option<&ReporterConfig> {
         let conf: Vec<&ReporterConfig> = self.r_plugin.iter().filter(|pc| pc.name == name).collect();
         if conf.len() > 0 {
             Some(conf[0])

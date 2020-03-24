@@ -32,7 +32,7 @@ pub fn start_cpu_thread() {
                     REPORT_CHANNEL.0.send(pr).unwrap();
                 },
                 Err(_) => {
-                    println!("sys_thread received error");
+                    error!("sys_thread received error");
                 }
             }
         }

@@ -5,19 +5,19 @@ use crate::PluginError;
 use crate::FunctionType;
 
 use std::collections::HashMap;
-use std::rc::Rc;
+use std::sync::Arc;
 use libloading::Library;
 
 
 #[derive(Default)]
 pub struct DefaultPluginRegistrar {
 
-    reporter_init: HashMap<String, Box<dyn ReporterInitFunction>>,
-    reporter: HashMap<String, Box<dyn ReporterFunction>>,
-    publisher_init: HashMap<String, Box<dyn PublisherInitFunction>>,
-    publisher: HashMap<String, Box<dyn PublisherFunction>>,
+    reporter_init: HashMap<String, Box<dyn ReporterInitFunction + Send>>,
+    reporter: HashMap<String, Box<dyn ReporterFunction + Send>>,
+    publisher_init: HashMap<String, Box<dyn PublisherInitFunction + Send>>,
+    publisher: HashMap<String, Box<dyn PublisherFunction + Send>>,
 
-    libs: Vec<Rc<Library>>
+    libs: Vec<Arc<Library>>
 }
 
 impl DefaultPluginRegistrar {
@@ -37,11 +37,11 @@ impl PluginRegistrar for DefaultPluginRegistrar {
         };
     }
 
-    fn register_lib(&mut self, lib: Rc<libloading::Library>) {
+    fn register_lib(&mut self, lib: Arc<libloading::Library>) {
         self.libs.push(lib);
     }
 
-    fn get_reporter_init(&self, name: &str) -> Result<&Box<dyn ReporterInitFunction>, PluginError> {
+    fn get_reporter_init(&self, name: &str) -> Result<&Box<dyn ReporterInitFunction + Send>, PluginError> {
         if self.reporter_init.contains_key(name) {
             Ok(self.reporter_init.get(name).unwrap())
         } else {
@@ -49,7 +49,7 @@ impl PluginRegistrar for DefaultPluginRegistrar {
         }
     }
 
-    fn get_reporter(&self, name: &str) -> Result<&Box<dyn ReporterFunction>, PluginError> {
+    fn get_reporter(&self, name: &str) -> Result<&Box<dyn ReporterFunction + Send>, PluginError> {
         if self.reporter.contains_key(name) {
             Ok(self.reporter.get(name).unwrap())
         } else {
@@ -57,7 +57,7 @@ impl PluginRegistrar for DefaultPluginRegistrar {
         }
     }
 
-    fn get_publisher_init(&self, name: &str) -> Result<&Box<dyn PublisherInitFunction>, PluginError> {
+    fn get_publisher_init(&self, name: &str) -> Result<&Box<dyn PublisherInitFunction + Send>, PluginError> {
         if self.publisher_init.contains_key(name) {
             Ok(self.publisher_init.get(name).unwrap())
         } else {
@@ -65,7 +65,7 @@ impl PluginRegistrar for DefaultPluginRegistrar {
         }
     }
 
-    fn get_publisher(&self, name: &str) -> Result<&Box<dyn PublisherFunction>, PluginError> {
+    fn get_publisher(&self, name: &str) -> Result<&Box<dyn PublisherFunction + Send>, PluginError> {
         if self.publisher.contains_key(name) {
             Ok(self.publisher.get(name).unwrap())
         } else {

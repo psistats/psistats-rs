@@ -3,8 +3,12 @@ use crate::PluginLoader;
 use crate::DefaultPluginRegistrar;
 use clap::{App, Arg};
 use std::alloc::System;
+use std::sync::{Arc, Mutex};
 use crate::config;
 use std::path::PathBuf;
+use std::env;
+use crate::service::manager::start_reporters;
+extern crate pretty_env_logger;
 
 #[global_allocator]
 static ALLOCATOR: System = System;
@@ -33,39 +37,49 @@ pub fn main() {
         )
         .get_matches();
 
+
     let c = matches.value_of("config").unwrap_or("psistats.toml");
-    println!("Value for config is: {}", c);
-
     let plugins = matches.value_of("plugins").unwrap();
-    println!("Plugins dir: {}", plugins);
 
-    let mut registrar: Box<dyn PluginRegistrar> = Box::new(DefaultPluginRegistrar::new());
+    let mut registrar: Box<dyn PluginRegistrar + Send> = Box::new(DefaultPluginRegistrar::new());
 
     let pl: PluginLoader = PluginLoader::new(plugins.to_string());
 
     let conf = config::ServiceConfig::from_file(PathBuf::from(c));
 
+    env::set_var("RUST_LOG", conf.logging.get_level());
+    pretty_env_logger::init();
+
+    info!("Psistats now starting ...");
+
     unsafe {
-        for rconf in conf.get_reporter_configs() {
+      for rconf in conf.get_reporter_configs() {
 
-            let plugin_name = rconf.get_name();
-            match pl.load_plugin(plugin_name, &mut registrar) {
-                Ok(()) => {
-                    println!("Plugin {} loaded", plugin_name);
-                },
-                Err(err) => {
-                    println!("Plugin failed to load: {}", err);
-                }
-            }
-
-            match registrar.get_reporter_init(rconf.get_name()) {
-              Ok(plugin) => {
-                plugin.call(rconf).unwrap();
-              },
-              Err(err) => {
-                println!("{}", err);
-              }
+        let plugin_name = rconf.get_name();
+        match pl.load_plugin(plugin_name, &mut registrar) {
+            Ok(()) => {
+                info!("Plugin {} loaded", plugin_name);
+            },
+            Err(err) => {
+                error!("Plugin {} failed to load: {}", plugin_name, err);
             }
         }
+
+        debug!("Trying to intialize {}", plugin_name);
+        match registrar.get_reporter_init(rconf.get_name()) {
+          Ok(plugin) => {
+            plugin.call(rconf).unwrap();
+          },
+          Err(err) => {
+            error!("{}", err);
+          }
+        }
+      }
     }
+
+    let registrarLock = Arc::new(Mutex::new(registrar));
+
+    let reporter_thread = start_reporters(&conf, &registrarLock);
+
+    reporter_thread.join().unwrap();
 }

@@ -1,5 +1,5 @@
 use libloading::Library;
-use std::rc::Rc;
+use std::sync::Arc;
 use std::{ffi::OsStr, fmt};
 use std;
 use crate::PluginRegistrar;
@@ -39,7 +39,7 @@ impl PluginLoader {
         }
     }
 
-    pub unsafe fn load_plugin<P: AsRef<OsStr>>(&self, plugin_name: P, registrar: &mut Box<dyn PluginRegistrar>) -> Result<(), Error> {
+    pub unsafe fn load_plugin<P: AsRef<OsStr>>(&self, plugin_name: P, registrar: &mut Box<dyn PluginRegistrar + Send>) -> Result<(), Error> {
         let plugin_file: String;
 
         if cfg!(target_os = "windows") {
@@ -56,25 +56,19 @@ impl PluginLoader {
     unsafe fn load_plugin_file<P: AsRef<OsStr>>(
         &self,
         plugin_file: P,
-        registrar: &mut Box<dyn PluginRegistrar>,
+        registrar: &mut Box<dyn PluginRegistrar + Send>,
     ) -> Result<(), Error>
     {
-        println!("load_plugin() -> Loading lib");
-
-
-
         let lib = Library::new(&plugin_file);
-        let lib_rc: Rc<Library>;
+        let lib_rc: Arc<Library>;
         match lib {
             Ok(l) => {
-                lib_rc = Rc::new(l);
+                lib_rc = Arc::new(l);
             },
             Err(err) => {
                 return Err(Error::LibError(format!("Error loading library: {}", err)));
             }
         }
-
-        println!("load_plugin() -> getting PSISTATS_PLUGIN decl");
 
         let decl_ref = lib_rc.get::<*mut PsistatsPlugin>(b"PSISTATS_PLUGIN\0");
         let decl: PsistatsPlugin;

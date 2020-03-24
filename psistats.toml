@@ -3,12 +3,16 @@ hostname="localhost"
 workers=2
 timer=1000
 
+[logging]
+level="debug"
+
+
 
 [[r_plugin]]
 name="cpu"
 enabled=true
-interval=0
-config.show_total=true
+interval=1
+config.show_total=false
 
 [[r_plugin]]
 name="foobar"

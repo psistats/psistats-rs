@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "psistats_service", "psistats_plugins/cpu"
+    "psistats_service", "psistats_plugins/cpu", "psistats_plugins/foobar"
 ]
 
 [profile.dev]
