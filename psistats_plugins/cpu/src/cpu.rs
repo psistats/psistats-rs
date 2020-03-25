@@ -3,10 +3,10 @@ use crossbeam_channel::{Receiver, Sender};
 use lazy_static::lazy_static;
 use sysinfo::{ProcessorExt, SystemExt};
 use sysinfo;
-use psistats_service::plugins::api;
+use psistats::plugins::api;
 use std::thread;
-use psistats_service::PsistatsReport;
-use psistats_service::PluginError;
+use psistats::PsistatsReport;
+use psistats::PluginError;
 
 lazy_static! {
     static ref SYS_CHANNEL: (Sender<String>, Receiver<String>) = unbounded();
@@ -31,9 +31,7 @@ pub fn start_cpu_thread() {
                     let pr = api::PsistatsReport::new("cpu", api::ReportValue::Array(msg));
                     REPORT_CHANNEL.0.send(pr).unwrap();
                 },
-                Err(_) => {
-                    error!("sys_thread received error");
-                }
+                Err(_) => ()
             }
         }
     });

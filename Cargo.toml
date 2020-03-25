@@ -1,7 +1,10 @@
 [workspace]
 members = [
-    "psistats_service", "psistats_plugins/cpu", "psistats_plugins/foobar"
+    "psistats_service",
+    "psistats_plugins/cpu",
+    "psistats_plugins/logger"
 ]
+
 
 [profile.dev]
 opt-level = 0
@@ -15,11 +18,11 @@ incremental = true
 overflow-checks = true
 
 [profile.release]
-opt-level = 3
+opt-level = 2
 debug = false
 rpath = false
 lto = true
 debug-assertions = false
-codegen-units = 16
+codegen-units = 1
 incremental = false
 overflow-checks = false

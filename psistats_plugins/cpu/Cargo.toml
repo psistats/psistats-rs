@@ -11,10 +11,7 @@ crate-type = ["cdylib"]
 name = "plugin_cpu"
 
 [dependencies]
-psistats_service = { path = "../../psistats_service" }
+psistats = { path = "../../psistats_service" }
 crossbeam-channel = "0.4.2"
 lazy_static = "1.4.0"
 sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo" }
-log = "0.4.8"
-
-

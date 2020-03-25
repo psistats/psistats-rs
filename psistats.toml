@@ -4,7 +4,7 @@ workers=2
 timer=1000
 
 [logging]
-level="debug"
+level="info"
 
 
 
@@ -14,7 +14,6 @@ enabled=true
 interval=1
 config.show_total=false
 
-[[r_plugin]]
-name="foobar"
+[[p_plugin]]
+name="logger"
 enabled=true
-interval=0

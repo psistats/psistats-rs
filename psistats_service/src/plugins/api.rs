@@ -33,7 +33,7 @@ pub trait ReporterInitFunction {
 /// A publisher function is called every time a report has been
 /// generated
 pub trait PublisherFunction {
-    fn call(&self, config: &PublisherConfig) -> Result<(), PluginError>;
+    fn call(&self, report: &PsistatsReport, config: &PublisherConfig) -> Result<(), PluginError>;
 }
 
 /// A publisher init function is called when psistats service starts

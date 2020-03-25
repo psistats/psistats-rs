@@ -1,4 +1,4 @@
-use psistats_service::service;
+use psistats::service;
 #[macro_use] extern crate log;
 
 pub fn main() {
