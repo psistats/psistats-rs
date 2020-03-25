@@ -21,7 +21,7 @@ if [ -z "$BUILD_NUMBER" ]; then DEBIAN_VERSION=$PROJECT_VERSION; else DEBIAN_VER
 DEBIAN_TARGET_DIR="$PROJECT_DIR/target/$TARGET/debian"
 DEBIAN_FILE="$DEBIAN_TARGET_DIR/${PROJECT_NAME}_${DEBIAN_VERSION}_${PROJECT_DEB_ARCH}.deb"
 
-cargo deb --deb-version $DEBIAN_VERSION --target $TARGET
+cargo deb --deb-version $DEBIAN_VERSION --target $TARGET -p psistats
 
 cd $DEBIAN_TARGET_DIR
 
