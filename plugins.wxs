@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?if $(var.Platform) = x64 ?>
+    <?define Win64 = "yes" ?>
+    <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+<?else ?>
+  <?define Win64 = "no" ?>
+  <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+<?endif ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" 
+    xmlns:wix="http://schemas.microsoft.com/wix/2006/wi">
+
+    <Fragment>
+        <DirectoryRef Id="APPLICATIONFOLDER">
+            <Directory Id="PLUGINSFOLDER" Name="plugins">
+                <Component Id="plugin_cpu_cmp" Guid="*"  Win64='$(var.Win64)'>
+                    <File Id="plugin_cpu_dll" KeyPath="yes" Source="target\release\plugin_cpu.dll" Name="plugin_cpu.dll" />
+                </Component>
+                <Component Id="plugin_logger_cmp" Guid="*"  Win64='$(var.Win64)'>
+                    <File Id="plugin_logger_dll" KeyPath="yes" Source="target\release\plugin_logger.dll" Name="plugin_logger.dll" />
+                </Component>
+            </Directory>
+        </DirectoryRef>
+    </Fragment>
+
+
+    <Fragment>
+        <ComponentGroup Id="PsistatsPlugins">
+            <ComponentRef Id="plugin_cpu_cmp" />
+            <ComponentRef Id="plugin_logger_cmp" />
+        </ComponentGroup>
+    </Fragment>
+
+</Wix>

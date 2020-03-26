@@ -1,10 +1,9 @@
 [workspace]
 members = [
-    "psistats_service",
+    "psistats",
     "psistats_plugins/cpu",
     "psistats_plugins/logger"
 ]
-
 
 [profile.dev]
 opt-level = 0
