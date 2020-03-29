@@ -10,4 +10,4 @@ echo Project path: %PROJECT_PATH%
 cd %PROJECT_PATH%
 cargo build --release
 heat dir target\release -cg PsistatsPlugins -gg -out target\wix\plugins.wxs -t wix\plugin_filter.xsl -dr plugins
-cargo wix %PROJECT_PATH%\psistats\Cargo.toml --include %PROJECT_PATH%\target\wix\plugins.wxs --nocapture
+cargo wix --name psistats -i 0.2.0 --include %PROJECT_PATH%\target\wix\plugins.wxs --nocapture

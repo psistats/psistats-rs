@@ -29,13 +29,185 @@
   <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
 <?endif ?>
 
+<?ifdef env.APPVEYOR_BUILD_NUMBER ?>
+  <?define PsistatsVersion = "0.2.0.$(env.APPVEYOR_BUILD_NUMBER)" ?>
+<?else ?>
+  <?define PsistatsVersion = "0.2.0.0" ?>
+<?endif ?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Bundle Version="1.0.0" UpgradeCode="3f967010-6eae-11ea-a0fc-b50231468539">
-    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense"/>
-    <Chain>
-      <MsiPackage SourceFile="psistats_service\target\wix\psistats-0.2.0-alpha-x86_64.msi" />
-    </Chain>
-  </Bundle>
+    <Product
+        Id='*'
+        Name='Psistats'
+        UpgradeCode='4F653672-D6AF-4867-837E-A0DF96E07795'
+        Manufacturer='Psikon'
+        Language='1033'
+        Codepage='1252'
+        Version='$(var.PsistatsVersion)'>
+
+        <Package Id='*'
+            Keywords='Installer'
+            Description='Psistats system metrics reporting tool'
+            Manufacturer='Psikon'
+            InstallerVersion='450'
+            Languages='1033'
+            Compressed='yes'
+            InstallScope='perMachine'
+            SummaryCodepage='1252'
+            Platform='$(var.Platform)'/>
+
+
+        <MajorUpgrade
+            Schedule='afterInstallInitialize'
+            DowngradeErrorMessage='A newer version of [ProductName] is already installed. Setup will now exit.'/>
+
+        <Media Id='1' Cabinet='media1.cab' EmbedCab='yes' DiskPrompt='CD-ROM #1'/>
+        <Property Id='DiskPrompt' Value='Psistats Installation'/>
+        <Directory Id='TARGETDIR' Name='SourceDir'>
+            <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
+                <Directory Id='APPLICATIONFOLDER' Name='psistats'>
+                    <Component Id='License' Guid='*' Win64='$(var.Win64)'>
+                        <File Id='LicenseFile'
+                            Name='License.rtf'
+                            DiskId='1'
+                            Source='wix\License.rtf'
+                            KeyPath='yes'/>
+                    </Component>
+
+                    <Component Id='PsistatsExe' Guid='*' Win64='$(var.Win64)'>
+                        <File
+                            Id='PsistatsExeFile'
+                            Name='psistats.exe'
+                            DiskId='1'
+                            Source='target\release\artifact\psistats.exe'
+                            KeyPath='yes'/>
+                    </Component>    
+                    <Component Id='PsistatsServiceExe' Guid='*' Win64='$(var.Win64)'>
+                      <File Id='PsistatsServiceExeFile'
+                        Name='psistats-service-winsw.exe'
+                        DiskId='1'
+                        Source='wix\psistats-service-winsw.exe'
+                        KeyPath='yes'/>
+                    </Component>
+                    <Component Id='PsistatsServiceExeXml' Guid='*' Win64='$(var.Win64)'>
+                      <File Id='PsistatsServiceExeXmlFile'
+                        Name='psistats-service-winsw.xml'
+                        DiskId='1'
+                        Source='wix\psistats-service-winsw.xml'
+                        KeyPath='yes'/>
+                    </Component>                        
+                    <Directory Id='PLUGINSFOLDER' Name='plugins'/>
+                    <Directory Id='CONFIGFOLDER' Name='config'>
+                      <Component Id='PsistatsToml' Guid='*' Win64='$(var.Win64)'>
+                        <File Id='PsistatsTomlFile'
+                          Name='psistats.toml'
+                          DiskId='1'
+                          Source='psistats.toml'
+                          KeyPath='yes'/>
+                      </Component>
+                    </Directory>
+                  </Directory>
+                </Directory>
+                </Directory>
+
+        <Feature
+            Id='Binaries'
+            Title='Application'
+            Description='Installs all binaries and the license.'
+            Level='1'
+            ConfigurableDirectory='APPLICATIONFOLDER'
+            AllowAdvertise='no'
+            Display='expand'
+            Absent='disallow'>
+            <!--
+              Comment out or remove the following `ComponentRef` tag to remove
+              the license sidecar file from the installer.
+            -->
+            <ComponentRef Id='License'/>
+            <ComponentRef Id='PsistatsServiceExe'/>
+            <ComponentRef Id='PsistatsServiceExeXml' />
+            <ComponentRef Id='PsistatsToml' />
+            <ComponentRef Id='PsistatsExe'/>
+            <ComponentGroupRef Id='PsistatsPlugins'/>
+
+        </Feature>
+<SetProperty Id='ARPINSTALLLOCATION' Value='[APPLICATIONFOLDER]' After='CostFinalize'/>
+
+        <CustomAction Id='POST_INSTALL'
+          Execute="deferred"
+          FileKey="PsistatsServiceExeFile"
+          Impersonate="no"
+          Return="ignore"
+          HideTarget="no"
+          ExeCommand="install"/>
+
+        <CustomAction Id='POST_UNINSTALL'
+          Execute="deferred"
+          FileKey="PsistatsServiceExeFile"
+          Impersonate="no"
+          Return="ignore"
+          HideTarget="no"
+          ExeCommand="uninstall"/>
+
+        <InstallExecuteSequence>
+          <Custom Action="POST_INSTALL" After="InstallFiles">(NOT Installed) AND (NOT REMOVE)</Custom>
+          <Custom Action="POST_UNINSTALL" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE~="ALL")</Custom>
+        </InstallExecuteSequence>
+        <!--
+          Uncomment the following `Icon` and `Property` tags to change the product icon.
+
+          The product icon is the graphic that appears in the Add/Remove
+          Programs control panel for the application.
+        -->
+        <!--<Icon Id='ProductICO' SourceFile='wix\Product.ico'/>-->
+        <!--<Property Id='ARPPRODUCTICON' Value='ProductICO' />-->
+
+        <Property Id='ARPHELPLINK' Value='https://www.psikon.org'/>
+        
+        <UI>
+            <UIRef Id='WixUI_FeatureTree'/>
+            <!--
+              Disabling the EULA dialog in the installer is a two step process:
+
+                 1. Uncomment the following two `Publish` tags
+                 2. Comment out or remove the `<WiXVariable Id='WixUILicenseRtf'...` tag further down
+
+            -->
+            <!--<Publish Dialog='WelcomeDlg' Control='Next' Event='NewDialog' Value='CustomizeDlg' Order='99'>1</Publish>-->
+            <!--<Publish Dialog='CustomizeDlg' Control='Back' Event='NewDialog' Value='WelcomeDlg' Order='99'>1</Publish>-->
+            
+        </UI>
+
+        <!--
+          Disabling the EULA dialog in the installer requires commenting out
+          or removing the following `WixVariable` tag
+        -->
+        <WixVariable Id='WixUILicenseRtf' Value='wix\License.rtf'/>
+        
+        
+        <!--
+          Uncomment the next `WixVaraible` tag to customize the installer's
+          Graphical User Interface (GUI) and add a custom banner image across
+          the top of each screen. See the WiX Toolset documentation for details
+          about customization.
+
+          The banner BMP dimensions are 493 x 58 pixels.
+        -->
+        <!--<WixVariable Id='WixUIBannerBmp' Value='wix\Banner.bmp'/>-->
+
+        
+        <!--
+          Uncomment the next `WixVariable` tag to customize the installer's
+          Graphical User Interface (GUI) and add a custom image to the first
+          dialog, or screen. See the WiX Toolset documentation for details about
+          customization.
+
+          The dialog BMP dimensions are 493 x 312 pixels.
+        -->
+        <!--<WixVariable Id='WixUIDialogBmp' Value='wix\Dialog.bmp'/>-->
+
+    </Product>
+
 </Wix>
 
 <!--
