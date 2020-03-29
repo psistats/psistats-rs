@@ -53,7 +53,7 @@ install:
 # the "directory does not contain a project or solution file" error.
 # source: https://github.com/starkat99/appveyor-rust/blob/master/appveyor.yml#L113
 build_script:
-  - build\windows.bat
+  - build\windows\build.bat
 
 artifacts:
   - path: psistats/target/wix/*.msi
