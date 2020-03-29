@@ -40,7 +40,7 @@
 
     <Product
         Id='*'
-        Name='psistats'
+        Name='Psistats'
         UpgradeCode='4F653672-D6AF-4867-837E-A0DF96E07795'
         Manufacturer='Psikon'
         Language='1033'
@@ -63,7 +63,7 @@
             DowngradeErrorMessage='A newer version of [ProductName] is already installed. Setup will now exit.'/>
 
         <Media Id='1' Cabinet='media1.cab' EmbedCab='yes' DiskPrompt='CD-ROM #1'/>
-        <Property Id='DiskPrompt' Value='psistats Installation'/>
+        <Property Id='DiskPrompt' Value='Psistats Installation'/>
 
         <Directory Id='TARGETDIR' Name='SourceDir'>
             <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
@@ -83,48 +83,39 @@
                             KeyPath='yes'/>
                     </Component>
                     
-                    <Directory Id='Bin' Name='bin'>
-                        <Component Id='Path' Guid='D26D4582-6D6A-4AA7-8A6D-D0C2772B169F' Win64='$(var.Win64)' KeyPath='yes'>
-                            <Environment
-                                Id='PATH'
-                                Name='PATH'
-                                Value='[Bin]'
-                                Permanent='no'
-                                Part='last'
-                                Action='set'
-                                System='yes'/>
-                        </Component>
-                        <Component Id='PsistatsExe' Guid='*' Win64='$(var.Win64)'>
-                            <File
-                                Id='PsistatsExeFile'
-                                Name='psistats.exe'
-                                DiskId='1'
-                                Source='target\$(var.Profile)\psistats.exe'
-                                KeyPath='yes'/>
-                        </Component>
-                        <Component Id='PsistatsToml' Guid='*' Win64='$(var.Win64)'>
-                          <File Id='PsistatsTomlFile'
-                            Name='psistats.toml'
+                    <Component Id='PsistatsExe' Guid='*' Win64='$(var.Win64)'>
+                        <File
+                            Id='PsistatsExeFile'
+                            Name='psistats.exe'
                             DiskId='1'
-                            Source='psistats.toml'
+                            Source='target\$(var.Profile)\psistats.exe'
                             KeyPath='yes'/>
-                        </Component>                        
-                        <Component Id='PsistatsServiceExe' Guid='*' Win64='$(var.Win64)'>
-                          <File Id='PsistatsServiceExeFile'
-                            Name='psistats-service-winsw.exe'
-                            DiskId='1'
-                            Source='wix\psistats-service-winsw.exe'
-                            KeyPath='yes'/>
-                        </Component>
-                        <Component Id='PsistatsServiceExeXml' Guid='*' Win64='$(var.Win64)'>
-                          <File Id='PsistatsServiceExeXmlFile'
-                            Name='psistats-service-winsw.xml'
-                            DiskId='1'
-                            Source='wix\psistats-service-winsw.xml'
-                            KeyPath='yes'/>
-                        </Component>                        
+                    </Component>
+                        
+                    <Component Id='PsistatsServiceExe' Guid='*' Win64='$(var.Win64)'>
+                      <File Id='PsistatsServiceExeFile'
+                        Name='psistats-service-winsw.exe'
+                        DiskId='1'
+                        Source='wix\psistats-service-winsw.exe'
+                        KeyPath='yes'/>
+                    </Component>
+                    <Component Id='PsistatsServiceExeXml' Guid='*' Win64='$(var.Win64)'>
+                      <File Id='PsistatsServiceExeXmlFile'
+                        Name='psistats-service-winsw.xml'
+                        DiskId='1'
+                        Source='wix\psistats-service-winsw.xml'
+                        KeyPath='yes'/>
+                    </Component>                        
+                    <Directory Id='PLUGINSFOLDER' Name='plugins'/>
+                    <Directory Id='CONFIGFOLDER' Name='config'>
+                      <Component Id='PsistatsToml' Guid='*' Win64='$(var.Win64)'>
+                        <File Id='PsistatsTomlFile'
+                          Name='psistats.toml'
+                          DiskId='1'
+                          Source='psistats.toml'
+                          KeyPath='yes'/>
+                      </Component>
                     </Directory>
-                    <Directory Id='PluginsDir' Name='plugins'/>
                 </Directory>
             </Directory>
         </Directory>
@@ -149,19 +140,30 @@
             <ComponentRef Id='PsistatsExe'/>
             <ComponentGroupRef Id='PsistatsPlugins'/>
 
-            <Feature
-                Id='Environment'
-                Title='PATH Environment Variable'
-                Description='Add the install location of the [ProductName] executable to the PATH system environment variable. This allows the [ProductName] executable to be called from any location.'
-                Level='1'
-                Absent='allow'>
-                <ComponentRef Id='Path'/>
-            </Feature>
         </Feature>
 
         <SetProperty Id='ARPINSTALLLOCATION' Value='[APPLICATIONFOLDER]' After='CostFinalize'/>
 
-        
+        <CustomAction Id='POST_INSTALL'
+          Execute="deferred"
+          FileKey="PsistatsServiceExeFile"
+          Impersonate="no"
+          Return="ignore"
+          HideTarget="no"
+          ExeCommand="install"/>
+
+        <CustomAction Id='POST_UNINSTALL'
+          Execute="deferred"
+          FileKey="PsistatsServiceExeFile"
+          Impersonate="no"
+          Return="ignore"
+          HideTarget="no"
+          ExeCommand="uninstall"/>
+
+        <InstallExecuteSequence>
+          <Custom Action="POST_INSTALL" After="InstallFiles">(NOT Installed) AND (NOT REMOVE)</Custom>
+          <Custom Action="POST_UNINSTALL" After="InstallInitialize">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE~="ALL")</Custom>
+        </InstallExecuteSequence>
         <!--
           Uncomment the following `Icon` and `Property` tags to change the product icon.
 

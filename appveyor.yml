@@ -47,11 +47,10 @@ install:
 # the "directory does not contain a project or solution file" error.
 # source: https://github.com/starkat99/appveyor-rust/blob/master/appveyor.yml#L113
 build_script:
-  - cargo build --release --verbose
-  - cargo wix --verbose --nocapture
+  - build\windows.bat
 
 artifacts:
-  - path: target/wix/*.msi
+  - path: psistats/target/wix/*.msi
 
 
 

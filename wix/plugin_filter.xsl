@@ -34,9 +34,12 @@
                     <File Id="fil13B611F46534628E2180255D986E4EEE" KeyPath="yes" Source="SourceDir\plugin_cpu.dll" />
                 </Component>    
     -->
-    <xsl:template match="wix:Directory/wix:Component[starts-with(wix:File/@Source, 'SourceDir\plugin_')]">
+    <xsl:template match="wix:Component[
+                starts-with(wix:File/@Source, 'SourceDir\plugin_') 
+                and 
+                '.dll' = substring(wix:File/@Source, string-length(wix:File/@Source) - string-length('.dll') +1)]">
         <xsl:variable name="plugin_name" select="substring-before(substring-after(wix:File/@Source, 'SourceDir\plugin_'), '.dll')"/>
-        <Component Id="plugin_{$plugin_name}_cmp" Guid="*">
+        <Component Id="plugin_{$plugin_name}_cmp" Guid="*" Win64="yes">
             <File 
                 Id="plugin_{$plugin_name}_dll" 
                 KeyPath="yes" 
@@ -48,17 +51,17 @@
     
     <xsl:template match="wix:DirectoryRef[@Id='plugins']">
     <Fragment>
-        <DirectoryRef Id="APPLICATIONFOLDER">
-            <Directory Id="PLUGINSFOLDER" Name="plugins">
-            <xsl:apply-templates select="wix:Directory/wix:Component[starts-with(wix:File/@Source, 'SourceDir\plugin_')]"/>  
-            <!--
-                <xsl:for-each select="wix:Directory/wix:Component[contains(concat(wix:File/@Source,'|'), '.dll|')]">
-                    <xsl:param name="plugin_name" select="wix:File/@Source"/>
-                    <xsl:value-of select="$plugin_name"/>
-                </xsl:for-each>
-            -->
-            </Directory>
-            
+        <DirectoryRef Id="PLUGINSFOLDER">
+            <xsl:apply-templates select="//wix:Component[
+            starts-with(wix:File/@Source, 'SourceDir\plugin_') 
+            and 
+            '.dll' = substring(wix:File/@Source, string-length(wix:File/@Source) - string-length('.dll') +1)]"/>  
+        <!--
+            <xsl:for-each select="wix:Directory/wix:Component[contains(concat(wix:File/@Source,'|'), '.dll|')]">
+                <xsl:param name="plugin_name" select="wix:File/@Source"/>
+                <xsl:value-of select="$plugin_name"/>
+            </xsl:for-each>
+        -->
         </DirectoryRef>
     </Fragment>
 
@@ -73,6 +76,7 @@
     <!-- <xsl:template match="wix:Directory"></xsl:template> -->
 
 <xsl:template match="/">
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <xsl:apply-templates />
 </Wix>
