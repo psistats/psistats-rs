@@ -1,10 +1,11 @@
 SET PATH_SELF=%~dp0
-SET PROJECT_VERSION="0.2.0"
+SET PROJECT_VERSION=0.2.0-alpha
+SET BUILD_VERSION=%PROJECT_VERSION%
 
 if "%JENKINS_BUILD_NUMBER%"=="" ( 
     echo "Not an appveyor build"
 ) ELSE ( 
-    set PROJECT_VERSION=%PROJECT_VERSION%.%JENKINS_BUILD_NUMBER%
+    set BUILD_VERSION=%BUILD_VERSION%.%JENKINS_BUILD_NUMBER%
 )
 
 pushd .
@@ -16,11 +17,12 @@ echo Project path: %PROJECT_PATH%
 
 cd %PROJECT_PATH%
 cargo build --release
-mkdir %PROJECT_PATH%\target\release\artifact
-mkdir %PROJECT_PATH%\target\release\artifact\plugins
-copy %PROJECT_PATH%\target\release\psistats.exe %PROJECT_PATH%\target\release\artifact\psistats.exe
-copy %PROJECT_PATH%\target\release\plugin_*.dll %PROJECT_PATH%\target\release\artifact\plugins
-7z a %PROJECT_PATH%\target\release\psistats-%PROJECT_VERSION%.zip %PROJECT_PATH%\target\release\artifact\*
+mkdir %PROJECT_PATH%\target\release\unzipped
+mkdir %PROJECT_PATH%\target\release\unzipped\plugins
+mkdir %PROJECT_PATH%\target\artifacts
+copy %PROJECT_PATH%\target\release\psistats.exe %PROJECT_PATH%\target\release\unzipped\psistats.exe
+copy %PROJECT_PATH%\target\release\plugin_*.dll %PROJECT_PATH%\target\release\unzipped\plugins
+7z a %PROJECT_PATH%\target\release\artifacts\psistats-%BUILD_VERSION%.zip %PROJECT_PATH%\target\release\unzipped\*
 
-heat dir target\release\artifact\plugins -cg PsistatsPlugins -gg -out target\wix\plugins.wxs -t wix\plugin_filter.xsl -dr plugins
-cargo wix --name psistats -i %PROJECT_VERSION% --include %PROJECT_PATH%\target\wix\plugins.wxs --nocapture
+heat dir target\release\unzipped\plugins -cg PsistatsPlugins -gg -out target\wix\plugins.wxs -t %PROJECT_PATH%\wix\plugin_filter.xsl -dr plugins
+cargo wix --name=psistats --install-version=%PROJECT_VERSION% --include=%PROJECT_PATH%\target\wix\plugins.wxs --nocapture --output %PROJECT_PATH%\target\release\artifacts\psistats-%BUILD_VERSION%.msi

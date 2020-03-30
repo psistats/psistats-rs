@@ -43,7 +43,7 @@
             <File 
                 Id="plugin_{$plugin_name}_dll" 
                 KeyPath="yes" 
-                Source="target\release\plugin_{$plugin_name}.dll"
+                Source="target\release\unzipped\plugins\plugin_{$plugin_name}.dll"
                 Name="plugin_{$plugin_name}.dll"
                 />
         </Component>

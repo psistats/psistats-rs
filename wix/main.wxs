@@ -79,7 +79,7 @@
                             Id='PsistatsExeFile'
                             Name='psistats.exe'
                             DiskId='1'
-                            Source='target\release\artifact\psistats.exe'
+                            Source='target\release\unzipped\psistats.exe'
                             KeyPath='yes'/>
                     </Component>    
                     <Component Id='PsistatsServiceExe' Guid='*' Win64='$(var.Win64)'>

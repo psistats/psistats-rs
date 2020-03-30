@@ -1,3 +1,4 @@
+
 def appveyor_download_artifacts(accountName, projectSlug, buildVersion, targetDir) {
 
   echo '[APPVEYOR] Downloading artifacts';
