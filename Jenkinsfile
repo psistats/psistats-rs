@@ -151,10 +151,7 @@ def updateGithubCommitStatus(build) {
   ])
 }
 
-library identifier: 'jenkins-pipeline-appveyor@master', retriever: modernSCM(
-  [$class: 'GitSCMSource',
-   remote: 'https://github.com/psikon-org/jenkins-pipeline-appveyor',
-   ])
+library identifier: 'jenkins-pipeline-appveyor@master',
 
 pipeline {
   agent {
@@ -164,7 +161,10 @@ pipeline {
   }
 
   libraries {
-    lib('jenkins-pipeline-appveyor@master')
+    lib('jenkins-pipeline-appveyor@master', retriever: modernSCM([
+      $class: 'GitSCMSource',
+      remote: 'https://github.com/psikon-org/jenkins-pipeline-appveyor',
+    ]))
   }
 
   stages {
