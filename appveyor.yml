@@ -56,8 +56,8 @@ build_script:
   - build\windows\build.bat
 
 artifacts:
-  - path: psistats/target/wix/*.msi
-  - path: psistats/target/psistats-*.zip
+  - path: target/release/artifacts/*
+
 
 
 
