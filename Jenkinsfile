@@ -223,7 +223,7 @@ pipeline {
             stage('Download Appveyor Artifacts') {
               steps {
                 script {
-                  appveyor_download_artifacts('alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION, 'target/artifacts');
+                  appveyor_download_artifacts('alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION, 'target/release/artifacts');
                 }
               }
             }
@@ -233,7 +233,7 @@ pipeline {
     }
     stage('Publish') {
       steps {
-        archiveArtifacts artifacts: 'target/artifacts/**/*', onlyIfSuccessful: true
+        archiveArtifacts artifacts: 'target/release/artifacts/**/*', onlyIfSuccessful: true
       }
     }
   }
