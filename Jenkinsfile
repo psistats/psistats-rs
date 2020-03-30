@@ -118,8 +118,8 @@ def appveyor_wait(appveyorToken, accountName, projectSlug, buildVersion) {
 }
 */
 library identifier: 'appveyor@master', retriever: http([
-  httpURL: 'https://raw.githubusercontent.com/psistats/psistats-ci/master/jenkins/appveyor-pipeline/src/org/psikon/appveyor.groovy'
-
+  httpURL: 'https://raw.githubusercontent.com/psistats/psistats-ci/master/jenkins/appveyor-pipeline/src/org/psikon/appveyor.groovy',
+  credentialsId: ''
 ])
 
 
