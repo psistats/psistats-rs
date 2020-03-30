@@ -157,14 +157,13 @@ library identifier: 'jenkins-pipeline-appveyor@master', retriever: modernSCM(
    ])
 
 pipeline {
-
+  agent {
+    label 'master'
+  }
   libraries {
     lib('jenkins-pipeline-appveyor@master')
   }
 
-  agent {
-    label 'master'
-  }
   stages {
     stage('Build') {
       parallel {
