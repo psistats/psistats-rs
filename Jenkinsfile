@@ -160,10 +160,7 @@ pipeline {
   }
 
   libraries {
-    lib('jenkins-pipeline-appveyor@master', retriever: modernSCM([
-      $class: 'GitSCMSource',
-      remote: 'https://github.com/psikon-org/jenkins-pipeline-appveyor',
-    ]))
+    lib('jenkins-pipeline-appveyor@master')
   }
 
   stages {
