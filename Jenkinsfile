@@ -154,13 +154,6 @@ pipeline {
     label 'master'
   }
   stages {
-    stage('Prepare') {
-      steps {
-        updateGithubCommitStatus(currentBuild)
-        sh 'cargo install cargo-deb || true'
-        sh 'cargo install cargo-config || true'
-      }
-    }
     stage('Build') {
       parallel {
 
@@ -168,30 +161,12 @@ pipeline {
           stages {
             stage('Build x86_64') {
               steps {
-                sh 'cargo clean'
-                sh 'cargo build --target x86_64-unknown-linux-gnu --release '
+                sh 'build/linux/build.sh x86_64-unknown-linux-gnu'
               }
             }
-            stage('Package x86_64') {
-              when {
-                branch 'master'
-              }
-              steps {
-                sh 'build/linux.sh x86_64-unknown-linux-gnu'
-              }
-            }
-
             stage('Build Raspberry Pi') {
               steps {
-                sh 'cargo build --target armv7-unknown-linux-gnueabihf --release'
-              }
-            }
-            stage('Package Raspberry Pi')  {
-              when {
-                branch 'master'
-              }
-              steps {
-                sh 'build/linux.sh armv7-unknown-linux-gnueabihf'
+                sh 'build/linux/build.sh armv7-unknown-linux-gnueabihf'
               }
             }
           }

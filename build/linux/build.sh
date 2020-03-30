@@ -14,7 +14,7 @@ if [ -z ${target_map[$TARGET]+"check"} ]; then
   done
   exit 1
 fi
-PROJECT_DEB_ARCH=${target_map[$TARGET]}
+PROJECT_ARCH=${target_map[$TARGET]}
 
 ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PROJECT_DIR="$( realpath "$ME/../../" )"
@@ -33,14 +33,14 @@ echo Project location: $PROJECT_DIR
 echo Project name: $PROJECT_NAME
 echo Project version: $PROJECT_VERSION
 
-RELEASE_DIR=$PROJECT_DIR/target/release
+RELEASE_DIR=$PROJECT_DIR/target/$TARGET/release
 ARTIFACT_DIR=$RELEASE_DIR/artifacts
-UNZIPPED_DIR=$RELEASE_DIR/unzipped/$PROJECT_NAME-$PROJECT_VERSION
+UNZIPPED_DIR=$RELEASE_DIR/unzipped/$PROJECT_NAME-$PROJECT_VERSION-$PROJECT_ARCH
 
 rm -rf $ARTIFACT_DIR
 rm -rf $RELEASE_DIR/unzipped
 
-cargo build --release
+cargo build --target $TARGET --release
 
 mkdir -p $UNZIPPED_DIR
 mkdir -p $ARTIFACT_DIR
@@ -52,7 +52,7 @@ cp $PROJECT_DIR/psistats.toml $UNZIPPED_DIR
 
 cd $RELEASE_DIR/unzipped
 
-tar -cvzf $ARTIFACT_DIR/$PROJECT_NAME-$PROJECT_VERSION.tar.gz *
+tar -cvzf $ARTIFACT_DIR/$PROJECT_NAME-$PROJECT_VERSION-$PROJECT_ARCH.tar.gz *
 
 cd $PROJECT_DIR
 
@@ -65,4 +65,5 @@ DEBIAN_TARGET_DIR=$PROJECT_DIR/target/$TARGET/debian
 DEBIAN_FILE=$DEBIAN_TARGET_DIR/${PROJECT_NAME}_${PROJECT_VERSION}_${target_map[$TARGET]}.deb
 
 cp $DEBIAN_FILE $ARTIFACT_DIR
-
+mkdir -p $PROJECT_DIR/target/release/artifacts
+cp -r $ARTIFACT_DIR/* $PROJECT_DIR/target/release/artifacts
