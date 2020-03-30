@@ -159,11 +159,7 @@ library identifier: 'jenkins-pipeline-appveyor@master', retriever: modernSCM(
 pipeline {
 
   libraries {
-    lib([identifier: 'jenkins-pipeline-appveyor@master', retriever: modernSCM([
-      scm: git([
-        remote: 'https://github.com/psikon-org/jenkins-pipeline-appveyor'
-      ])
-    ])])
+    lib('jenkins-pipeline-appveyor@master')
   }
 
   agent {
