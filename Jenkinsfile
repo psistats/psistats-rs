@@ -151,12 +151,9 @@ def updateGithubCommitStatus(build) {
   ])
 }
 
-// @Library('jenkins-pipeline-appveyor@master')_
+@Library('jenkins-pipeline-appveyor@master')_
 
 pipeline {
-  libraries {
-    lib 'jenkins-pipeline-appveyor@master'
-  }
 
   agent {
     node {
