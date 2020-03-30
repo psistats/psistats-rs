@@ -194,7 +194,7 @@ pipeline {
               steps {
                 withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
                   script {
-                    def appveyorBuild = Appveyor.start_build(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT);
+                    def appveyorBuild = Appveyor.start_build(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT, env.BUILD_NUMBER);
                     env.APPVEYOR_BUILD_VERSION = appveyorBuild.version;
                   }
                 }
