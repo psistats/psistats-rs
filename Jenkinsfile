@@ -151,7 +151,7 @@ def updateGithubCommitStatus(build) {
   ])
 }
 
-@Library('jenkins-pipeline-appveyor@master') import org.psikon.appveyor.Appveyor;
+@Library('jenkins-pipeline-appveyor@master') import static org.psikon.appveyor.Appveyor;
 
 pipeline {
 
