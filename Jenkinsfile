@@ -1,4 +1,4 @@
-
+/*
 def appveyor_download_artifacts(accountName, projectSlug, buildVersion, targetDir) {
 
   echo '[APPVEYOR] Downloading artifacts';
@@ -116,6 +116,11 @@ def appveyor_wait(appveyorToken, accountName, projectSlug, buildVersion) {
     error("Appveyor failed to build! Version: ${env.APPVEYOR_BUILD_VERSION} - Status: ${buildStatus}")
   }
 }
+*/
+library identifier: 'appveyor', retriever: http([
+  httpURL: 'https://raw.githubusercontent.com/psistats/psistats-ci/master/jenkins/appveyor-pipeline/src/org/psikon/appveyor.groovy'
+
+])
 
 
 def getRepoURL() {
