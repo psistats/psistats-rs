@@ -14,6 +14,16 @@ enabled=true
 interval=1
 config.show_total=false
 
+[[r_plugin]]
+name="memory"
+enabled=true
+interval=5
+
+[[r_plugin]]
+name="ipaddrs"
+enabled=false
+interval=0
+
 [[p_plugin]]
 name="logger"
 enabled=true

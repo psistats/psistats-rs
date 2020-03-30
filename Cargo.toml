@@ -2,7 +2,9 @@
 members = [
     "psistats",
     "psistats_plugins/cpu",
-    "psistats_plugins/logger"
+    "psistats_plugins/logger",
+    "psistats_plugins/memory",
+    "psistats_plugins/ipaddrs"
 ]
 
 [profile.dev]

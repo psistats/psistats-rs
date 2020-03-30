@@ -41,7 +41,7 @@ install:
   - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
   - rustc -Vv
   - cargo -V
-  - cargo install cargo-wix
+  - cargo install cargo-wix cargo-config
 
   # AppVeyor has WiX installed but it is not on the PATH.
   # We first print out all versions to make it easier to update this if

@@ -159,6 +159,11 @@ pipeline {
 
         stage('Linux') {
           stages {
+            stage('Prepare') {
+              steps {
+                sh 'cargo clean'
+              }
+            }
             stage('Build x86_64') {
               steps {
                 sh 'build/linux/build.sh x86_64-unknown-linux-gnu'

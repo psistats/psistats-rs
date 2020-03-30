@@ -118,7 +118,7 @@ macro_rules! export_plugin {
 /// A possible report value
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub enum ReportValue {
-    Integer(i64),
+    Integer(u64),
     Float(f64),
     String(String),
     Array(Vec<ReportValue>),
