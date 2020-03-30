@@ -151,7 +151,6 @@ def updateGithubCommitStatus(build) {
   ])
 }
 
-library identifier: 'jenkins-pipeline-appveyor@master',
 
 pipeline {
   agent {
