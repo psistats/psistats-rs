@@ -190,13 +190,20 @@ pipeline {
         stage('Windows') {
 
           stages {
-            stage('Start Build') {
+            stage('Build Windows') {
               steps {
 
 
 
                 withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
-                  appveyorStartBuild TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT, env.BUILD_NUMBER
+                  appveyorBuild(
+                    accountToken: TOKEN,
+                    accountName: 'alex-dow',
+                    projectSlug: 'psistats-rs',
+                    branch: env.GIT_BRANCH,
+                    commitId: env.GIT_COMMIT,
+                    buildNumber: env.BUILD_NUMBER
+                  )
                   /*
                   script {
                     def appveyorBuild = appveyorStartBuild(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT, env.BUILD_NUMBER);
