@@ -153,11 +153,13 @@ def updateGithubCommitStatus(build) {
 
 pipeline {
 
-  library identifier: 'jenkins-pipeline-appveyor@master', retriever: modernSCM([
-    scm: git([
-      remote: 'https://github.com/psikon-org/jenkins-pipeline-appveyor'
+  libraries {
+    library identifier: 'jenkins-pipeline-appveyor@master', retriever: modernSCM([
+      scm: git([
+        remote: 'https://github.com/psikon-org/jenkins-pipeline-appveyor'
+      ])
     ])
-  ])
+  }
 
   agent {
     label 'master'
