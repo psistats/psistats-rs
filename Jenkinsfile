@@ -160,9 +160,7 @@ pipeline {
   agent {
     label 'master'
   }
-  libraries {
-    lib('jenkins-pipeline-appveyor@master')
-  }
+
 
   stages {
     stage('Build') {
@@ -189,6 +187,9 @@ pipeline {
         }
 
         stage('Windows') {
+          libraries {
+            lib('jenkins-pipeline-appveyor@master')
+          }
           stages {
             stage('Start Build') {
               steps {
