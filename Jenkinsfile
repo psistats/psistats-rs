@@ -192,9 +192,6 @@ pipeline {
           stages {
             stage('Build Windows') {
               steps {
-
-
-
                 withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
                   appveyorBuild(
                     accountToken: TOKEN,
@@ -204,22 +201,6 @@ pipeline {
                     commitId: env.GIT_COMMIT,
                     buildNumber: env.BUILD_NUMBER
                   )
-                  /*
-                  script {
-                    def appveyorBuild = appveyorStartBuild(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT, env.BUILD_NUMBER);
-                    env.APPVEYOR_BUILD_VERSION = appveyorBuild.version;
-                  }
-                  */
-                }
-              }
-            }
-
-            stage('Building') {
-              steps {
-                withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
-                  script {
-                    Appveyor.wait(TOKEN, 'alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
-                  }
                 }
               }
             }
@@ -227,7 +208,11 @@ pipeline {
             stage('Download Appveyor Artifacts') {
               steps {
                 script {
-                  Appveyor.download_artifacts('alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION, 'target/release/artifacts');
+                  appveyorDownloadAll(
+                    accountName: 'alex-dow',
+                    projectSlug: 'psistats-rs',
+                    buildVersion: env.APPVEYOR_BUILD_VERSION
+                  )
                 }
               }
             }
