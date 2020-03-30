@@ -197,7 +197,7 @@ pipeline {
               steps {
                 withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
                   script {
-                    def appveyorBuild = appveyor_start_build(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT);
+                    def appveyorBuild = Appveyor.start_build(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT);
                     env.APPVEYOR_BUILD_VERSION = appveyorBuild.version;
                   }
                 }
@@ -208,7 +208,7 @@ pipeline {
               steps {
                 withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
                   script {
-                    appveyor_wait(TOKEN, 'alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
+                    Appveyor.wait(TOKEN, 'alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
                   }
                 }
               }
@@ -217,7 +217,7 @@ pipeline {
             stage('Download Appveyor Artifacts') {
               steps {
                 script {
-                  appveyor_download_artifacts('alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION, 'target/release/artifacts');
+                  Appveyor.download_artifacts('alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION, 'target/release/artifacts');
                 }
               }
             }
