@@ -151,7 +151,7 @@ def updateGithubCommitStatus(build) {
   ])
 }
 
-@Library('jenkins-pipeline-appveyor@master') import org.psikon.Appveyor;
+@Library('jenkins-pipeline-appveyor@master') _
 
 pipeline {
 
@@ -192,11 +192,17 @@ pipeline {
           stages {
             stage('Start Build') {
               steps {
+
+
+
                 withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
+                  appveyorStartBuild TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT, env.BUILD_NUMBER
+                  /*
                   script {
-                    def appveyorBuild = Appveyor.start_build(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT, env.BUILD_NUMBER);
+                    def appveyorBuild = appveyorStartBuild(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT, env.BUILD_NUMBER);
                     env.APPVEYOR_BUILD_VERSION = appveyorBuild.version;
                   }
+                  */
                 }
               }
             }
