@@ -26,6 +26,7 @@ cd $PROJECT_DIR/psistats
 
 PROJECT_NAME="$( cargo config package.name | cut -d '"' -f 2 )"
 PROJECT_VERSION="$( cargo config package.version | cut -d '"' -f 2 )"
+if [ -z "$BUILD_NUMBER" ]; then DEBIAN_VERSION=$PROJECT_VERSION; else DEBIAN_VERSION="$PROJECT_VERSION-$BUILD_NUMBER"; fi
 
 cd $PROJECT_DIR
 
@@ -35,7 +36,7 @@ echo Project version: $PROJECT_VERSION
 
 RELEASE_DIR=$PROJECT_DIR/target/$TARGET/release
 ARTIFACT_DIR=$RELEASE_DIR/artifacts
-UNZIPPED_DIR=$RELEASE_DIR/unzipped/$PROJECT_NAME-$PROJECT_VERSION-$PROJECT_ARCH
+UNZIPPED_DIR=$RELEASE_DIR/unzipped/${PROJECT_NAME}-${DEBIAN_VERSION}-${PROJECT_ARCH}
 
 rm -rf $ARTIFACT_DIR
 rm -rf $RELEASE_DIR/unzipped
@@ -52,17 +53,17 @@ cp $PROJECT_DIR/psistats.toml $UNZIPPED_DIR
 
 cd $RELEASE_DIR/unzipped
 
-tar -cvzf $ARTIFACT_DIR/$PROJECT_NAME-$PROJECT_VERSION-$PROJECT_ARCH.tar.gz *
+tar -cvzf ${ARTIFACT_DIR}/${PROJECT_NAME}-${DEBIAN_VERSION}-${PROJECT_ARCH}.tar.gz *
 
 cd $PROJECT_DIR
 
 DEBIAN_DIR=$RELEASE_DIR/debian
 mkdir -p $DEBIAN_DIR
 
-cargo deb --deb-version $PROJECT_VERSION --target $TARGET -p psistats
+cargo deb --deb-version $DEBIAN_VERSION --target $TARGET -p psistats
 
 DEBIAN_TARGET_DIR=$PROJECT_DIR/target/$TARGET/debian
-DEBIAN_FILE=$DEBIAN_TARGET_DIR/${PROJECT_NAME}_${PROJECT_VERSION}_${target_map[$TARGET]}.deb
+DEBIAN_FILE=$DEBIAN_TARGET_DIR/${PROJECT_NAME}_${DEBIAN_VERSION}_${target_map[$TARGET]}.deb
 
 cp $DEBIAN_FILE $ARTIFACT_DIR
 mkdir -p $PROJECT_DIR/target/release/artifacts

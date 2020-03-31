@@ -29,8 +29,14 @@
   <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
 <?endif ?>
 
-<?ifdef env.APPVEYOR_BUILD_NUMBER ?>
-  <?define PsistatsVersion = "0.2.0.$(env.APPVEYOR_BUILD_NUMBER)" ?>
+<!--
+It's assumed this will be used in an Appveyor environment that was
+triggered from a Jenkins build. Thus we expect JENKINS_BUILD_NUMBER
+env variable to be available with the jenkins build number that triggered
+the currrent appveyor build
+-->
+<?ifdef env.JENKINS_BUILD_NUMBER ?>
+  <?define PsistatsVersion = "0.2.0.$(env.JENKINS_BUILD_NUMBER)" ?>
 <?else ?>
   <?define PsistatsVersion = "0.2.0.0" ?>
 <?endif ?>
@@ -81,7 +87,7 @@
                             DiskId='1'
                             Source='target\release\unzipped\psistats.exe'
                             KeyPath='yes'/>
-                    </Component>    
+                    </Component>
                     <Component Id='PsistatsServiceExe' Guid='*' Win64='$(var.Win64)'>
                       <File Id='PsistatsServiceExeFile'
                         Name='psistats-service-winsw.exe'
@@ -95,7 +101,7 @@
                         DiskId='1'
                         Source='wix\psistats-service-winsw.xml'
                         KeyPath='yes'/>
-                    </Component>                        
+                    </Component>
                     <Directory Id='PLUGINSFOLDER' Name='plugins'/>
                     <Directory Id='CONFIGFOLDER' Name='config'>
                       <Component Id='PsistatsToml' Guid='*' Win64='$(var.Win64)'>
@@ -163,7 +169,7 @@
         <!--<Property Id='ARPPRODUCTICON' Value='ProductICO' />-->
 
         <Property Id='ARPHELPLINK' Value='https://www.psikon.org'/>
-        
+
         <UI>
             <UIRef Id='WixUI_FeatureTree'/>
             <!--
@@ -175,7 +181,7 @@
             -->
             <!--<Publish Dialog='WelcomeDlg' Control='Next' Event='NewDialog' Value='CustomizeDlg' Order='99'>1</Publish>-->
             <!--<Publish Dialog='CustomizeDlg' Control='Back' Event='NewDialog' Value='WelcomeDlg' Order='99'>1</Publish>-->
-            
+
         </UI>
 
         <!--
@@ -183,8 +189,8 @@
           or removing the following `WixVariable` tag
         -->
         <WixVariable Id='WixUILicenseRtf' Value='wix\License.rtf'/>
-        
-        
+
+
         <!--
           Uncomment the next `WixVaraible` tag to customize the installer's
           Graphical User Interface (GUI) and add a custom banner image across
@@ -195,7 +201,7 @@
         -->
         <!--<WixVariable Id='WixUIBannerBmp' Value='wix\Banner.bmp'/>-->
 
-        
+
         <!--
           Uncomment the next `WixVariable` tag to customize the installer's
           Graphical User Interface (GUI) and add a custom image to the first
