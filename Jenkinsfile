@@ -30,7 +30,7 @@ def updateGithubCommitStatus(build) {
 }
 
 @Library('jenkins-pipeline-appveyor@master') _
-@Library('psikon-jenkins-mailer') _
+@Library('psikon-jenkins-mailer@master') _
 
 pipeline {
 
