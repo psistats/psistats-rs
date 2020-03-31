@@ -29,15 +29,17 @@ def updateGithubCommitStatus(build) {
   ])
 }
 
-@Library('jenkins-pipeline-appveyor@master') _
-@Library('psikon-jenkins-mailer@master') _
-
 pipeline {
 
   agent {
     node {
       label 'master'
     }
+  }
+
+  libraries {
+    lib('jenkins-pipeline-appveyor@master')
+    lib('psikon-jenkins-mailer@master')
   }
 
   stages {
