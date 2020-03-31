@@ -108,7 +108,8 @@ pipeline {
     success {
       updateGithubCommitStatus currentBuild
       psikonMailer
-    },
+    }
+
     failure {
       updateGithubCommitStatus currentBuild
       psikonMailer
