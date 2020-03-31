@@ -30,6 +30,7 @@ def updateGithubCommitStatus(build) {
 }
 
 @Library('jenkins-pipeline-appveyor@master') _
+@Library('psikon-jenkins-mailer') _
 
 pipeline {
 
@@ -105,6 +106,17 @@ pipeline {
   }
   post {
     success {
+      updateGithubCommitStatus currentBuild
+      psikonMailer
+    },
+    failure {
+      updateGithubCommitStatus currentBuild
+      psikonMailer
+    }
+  }
+}
+    /*
+    success {
       updateGithubCommitStatus(currentBuild)
       emailext (
         subject: "JOB: ${env.JOB_NAME} [${env.BUILD_NUMBER}] - Status: SUCCESSFUL",
@@ -139,3 +151,34 @@ ___  ____ _ _  _ ____ _  _
     }
   }
 }
+
+
+Main Controls - *FIGlet and AOL Macro Fonts Supported*
+Font:
+Character Width:
+Character Height:
+Type Something
+
+
+Other Stuff From patorjk.com That You Might Like:
+
+    Typing Speed Test
+    Keyboard Layout Analzyer
+    Text Color Fader
+    Snake Game
+    My Photography Site
+    Main Page
+
+patorjk.com
+
+  _______   _______   ___   ___ ___    _______   ______
+ |   _   | |   _   | |   | |   Y   )  |   _   | |   _  \
+ |.  1   | |   1___| |.  | |.  1  /   |.  |   | |.  |   |
+ |.  ____| |____   | |.  | |.  _  \   |.  |   | |.  |   |
+ |:  |     |:  1   | |:  | |:  |   \  |:  1   | |:  |   |
+ |::.|     |::.. . | |::.| |::.| .  ) |::.. . | |::.|   |
+ `---'     `-------' `---' `--- ---'  `-------' `--- ---'
+
+                  https://psikon.org
+
+*/
