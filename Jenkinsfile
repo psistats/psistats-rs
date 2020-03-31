@@ -108,13 +108,13 @@ pipeline {
   }
   post {
     success {
-      updateGithubCommitStatus currentBuild
-      psikonMailer currentBuild env
+      updateGithubCommitStatus(currentBuild)
+      psikonMailer(currentBuild, env)
     }
 
     failure {
       updateGithubCommitStatus currentBuild
-      psikonMailer currentBuild env
+      psikonMailer(currentBuild, env)
     }
   }
 }
