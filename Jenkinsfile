@@ -1,122 +1,3 @@
-def appveyor_download_artifacts(accountName, projectSlug, buildVersion, targetDir) {
-
-  echo '[APPVEYOR] Downloading artifacts';
-
-  def content = httpRequest(
-    url: "https://ci.appveyor.com/api/projects/${accountName}/${projectSlug}/build/${buildVersion}",
-    customHeaders: [
-      [name: 'Accept', value: 'application/json']
-    ]
-  );
-  echo groovy.json.JsonOutput.prettyPrint(content.getContent());
-  def build_obj = new groovy.json.JsonSlurperClassic().parseText(content.getContent());
-
-  def job_id = build_obj.build.jobs[0].jobId;
-
-  def artifact_response = httpRequest(
-    url: "https://ci.appveyor.com/api/buildjobs/${job_id}/artifacts",
-    customHeaders: [
-      [name: 'Accept', value: 'application/json']
-    ]
-  );
-
-  def artifact_response_content = artifact_response.getContent();
-  echo artifact_response_content;
-
-  build_obj = new groovy.json.JsonSlurperClassic().parseText(artifact_response_content);
-
-  build_obj.each {
-    echo "[APPVEYOR] Artifact found: ${it.fileName}";
-    def f = new File(it.fileName);
-    def fn = f.getName();
-    def encodedFn = java.net.URLEncoder.encode(it.fileName, 'UTF-8');
-    def url = "https://ci.appveyor.com/api/buildjobs/${job_id}/artifacts/${encodedFn}";
-    echo "[APPVEYOR] Downloading ${url}"
-    sh(script: """mkdir -p ${targetDir} && wget -O ${targetDir}/${fn} ${url}""");
-    echo "[APPVEYOR] Artifact downloaded to ${targetDir}/${fn}"
-  };
-}
-
-def appveyor_start_build(appveyorToken, accountName, projectSlug, branch, commitId) {
-  echo '[APPVEYOR] Starting appveyor job';
-
-  def request = [:]
-  request['accountName'] = accountName;
-  request['projectSlug'] = projectSlug;
-  request['environmentVariables'] = [:];
-  request['environmentVariables']['JENKINS_BUILD_NUMBER'] = env.BUILD_NUMBER;
-
-  if (branch.startsWith('PR')) {
-    echo '[APPVEYOR] Building a pull request';
-    def pr = branch.split('-')[1];
-    request['pullRequestId'] = pr;
-  } else {
-    echo "[APPVEYOR] Building ${branch} : ${commitId}";
-    request['branch'] = branch;
-    request['commitId'] = commitId;
-  }
-
-  def requestBody = new groovy.json.JsonBuilder(request).toPrettyString();
-
-  // echo "[APPVEYOR] Request body: ${request_body}";
-  def build_response = httpRequest(
-    url: "https://ci.appveyor.com/api/account/${accountName}/builds",
-    httpMode: 'POST',
-    customHeaders: [
-      [name: 'Authorization', value: "Bearer ${appveyorToken}"],
-      [name: 'Content-type', value: 'application/json']
-    ],
-    requestBody: requestBody
-  )
-
-  def content = build_response.getContent();
-
-  def build_obj = new groovy.json.JsonSlurperClassic().parseText(content)
-  echo "[APPVEYOR] Appveyor build number: ${build_obj.buildNumber}";
-  echo "[APPVEYOR] Appveyor build version: ${build_obj.version}";
-
-  return build_obj;
-}
-
-def appveyor_build_status(appveyorToken, accountName, projectSlug, buildVersion) {
-  def status_response = httpRequest(
-      url: "https://ci.appveyor.com/api/projects/${accountName}/${projectSlug}/build/${buildVersion}",
-      httpMode: 'GET',
-      customHeaders: [
-          [name: 'Authorization', value: "Bearer ${appveyorToken}"],
-          [name: 'Accept', value: 'application/json']
-      ]
-  )
-
-  def status_content = status_response.getContent()
-  def build_data = new groovy.json.JsonSlurperClassic().parseText(status_content)
-
-  return build_data.build.status;
-
-}
-
-def appveyor_wait(appveyorToken, accountName, projectSlug, buildVersion) {
-  def appveyorFinished = false;
-
-  def buildStatus = ""
-
-  while (appveyorFinished == false) {
-    buildStatus = appveyor_build_status(TOKEN, 'alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
-    if (buildStatus == "success" || buildStatus == "error" || buildStatus == "failed" || buildStatus == 'cancelled') {
-      echo "[APPVEYOR] Finished. Result is ${buildStatus} ";
-      appveyorFinished = true;
-    } else {
-      echo "[APPVEYOR] Build status is ${buildStatus}";
-      sleep(30);
-    }
-  }
-
-  if (buildStatus != "success") {
-    error("Appveyor failed to build! Version: ${env.APPVEYOR_BUILD_VERSION} - Status: ${buildStatus}")
-  }
-}
-
-
 def getRepoURL() {
   sh "git config --get remote.origin.url > .git/remote-url"
   return readFile(".git/remote-url").trim()
@@ -149,65 +30,56 @@ def updateGithubCommitStatus(build) {
 }
 
 pipeline {
+
   agent {
-    label 'master'
-  }
-  stages {
-    stage('Prepare') {
-      steps {
-        updateGithubCommitStatus(currentBuild)
-        sh 'cargo install cargo-deb || true'
-        sh 'cargo install cargo-config || true'
-      }
+    node {
+      label 'master'
     }
+  }
+
+  libraries {
+    lib('psikon-jenkins-appveyor@master')
+    lib('psikon-jenkins-mailer@master')
+  }
+
+  stages {
     stage('Build') {
       parallel {
 
         stage('Linux') {
           stages {
-            stage('Build x86_64') {
+            stage('Prepare') {
               steps {
                 sh 'cargo clean'
-                sh 'cargo build --bin psistats --target x86_64-unknown-linux-gnu --release '
               }
             }
-            stage('Package x86_64') {
+            stage('Build x86_64') {
               steps {
-                sh 'build/linux.sh x86_64-unknown-linux-gnu'
+                sh 'build/linux/build.sh x86_64-unknown-linux-gnu'
               }
             }
             stage('Build Raspberry Pi') {
               steps {
-                sh 'cargo build --bin psistats --target armv7-unknown-linux-gnueabihf --release'
-              }
-            }
-            stage('Package Raspberry Pi')  {
-              steps {
-                sh 'build/linux.sh armv7-unknown-linux-gnueabihf'
+                sh 'build/linux/build.sh armv7-unknown-linux-gnueabihf'
               }
             }
           }
         }
 
         stage('Windows') {
-          stages {
-            stage('Start Build') {
-              steps {
-                withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
-                  script {
-                    def appveyorBuild = appveyor_start_build(TOKEN, 'alex-dow', 'psistats-rs', env.GIT_BRANCH, env.GIT_COMMIT);
-                    env.APPVEYOR_BUILD_VERSION = appveyorBuild.version;
-                  }
-                }
-              }
-            }
 
-            stage('Building') {
+          stages {
+            stage('Build Windows') {
               steps {
                 withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
-                  script {
-                    appveyor_wait(TOKEN, 'alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION);
-                  }
+                  appveyorBuild(
+                    accountToken: TOKEN,
+                    accountName: 'alex-dow',
+                    projectSlug: 'psistats-rs',
+                    branch: env.GIT_BRANCH,
+                    commitId: env.GIT_COMMIT,
+                    buildNumber: env.BUILD_NUMBER
+                  )
                 }
               }
             }
@@ -215,7 +87,12 @@ pipeline {
             stage('Download Appveyor Artifacts') {
               steps {
                 script {
-                  appveyor_download_artifacts('alex-dow', 'psistats-rs', env.APPVEYOR_BUILD_VERSION, 'target/artifacts');
+                  appveyorDownloadAll(
+                    accountName: 'alex-dow',
+                    projectSlug: 'psistats-rs',
+                    buildVersion: env.APPVEYOR_BUILD_VERSION,
+                    targetDir: 'target/release/artifacts'
+                  )
                 }
               }
             }
@@ -225,43 +102,19 @@ pipeline {
     }
     stage('Publish') {
       steps {
-        archiveArtifacts artifacts: 'target/artifacts/**/*', onlyIfSuccessful: true
+        archiveArtifacts artifacts: 'target/release/artifacts/**/*', onlyIfSuccessful: true
       }
     }
   }
   post {
     success {
       updateGithubCommitStatus(currentBuild)
-      emailext (
-        subject: "JOB: ${env.JOB_NAME} [${env.BUILD_NUMBER}] - Status: SUCCESSFUL",
-        body: """${env.JOB_NAME} [${env.BUILD_NUMBER}] was completed successfully.
-
-Check console output at ${env.BUILD_URL}
-
-___  ____ _ _  _ ____ _  _
-|__] [__  | |_/  |  | |\\ |
-|    ___] | | \\_ |__| | \\|
-
-        """,
-        to: "ci@psikon.com"
-      )
+      psikonMailer(currentBuild, env)
     }
+
     failure {
-      updateGithubCommitStatus(currentBuild)
-      emailext (
-        subject: "JOB: ${env.JOB_NAME} [${env.BUILD_NUMBER}] - Status: FAILURE",
-        body: """
-${env.JOB_NAME} [${env.BUILD_NUMBER}] has failed!
-
-Check full console output at ${env.BUILD_URL}
-
-___  ____ _ _  _ ____ _  _
-|__] [__  | |_/  |  | |\\ |
-|    ___] | | \\_ |__| | \\|
-
-      """,
-        to: "ci@psikon.com"
-      )
+      updateGithubCommitStatus currentBuild
+      psikonMailer(currentBuild, env)
     }
   }
 }

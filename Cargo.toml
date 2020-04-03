@@ -1,51 +1,11 @@
-[package]
-name = "psistats"
-version = "0.1.0-beta"
-license = "MIT"
-authors = ["Alex Dow <adow@psikon.com>"]
-edition = "2018"
-publish = false
-include = ["psistats.toml", "psistats-service.exe", "psistats-service.xml"]
-description = "Psistats system metrics reporting tool"
-homepage = "https://www.psikon.org"
-repository = "https://github.com/psistats/psistats-rs"
-readme = "README.md"
-
-[package.metadata.deb]
-maintainer = "Alex Dow <adow@psikon.com>"
-copyright = "2019, Alex Dow <adow@psikon.com>"
-license-file = ["LICENSE", "0"]
-extended-description = """\
-A simple system metrics reporting tool"""
-depends = "$auto, systemd"
-section = "utility"
-priority = "optional"
-conf-files = ["/etc/psistats/psistats.toml"]
-assets = [
-    ["target/release/psistats", "usr/bin/", "755"],
-    ["psistats.toml", "etc/psistats/", "644"],
-    ["systemd/psistats.service", "etc/systemd/system/", "644"]
+[workspace]
+members = [
+    "psistats",
+    "psistats_plugins/cpu",
+    "psistats_plugins/logger",
+    "psistats_plugins/memory",
+    "psistats_plugins/ipaddrs"
 ]
-
-
-[dependencies]
-clap = "2.33.0"
-crossbeam-channel = "0.3.9"
-get_if_addrs = "0.5.3"
-hostname = "0.2.0"
-lazy_static = "1.4.0"
-log = "0.4.8"
-os_info = "1.1.3"
-pretty_env_logger = "0.3.1"
-rand = "0.7.2"
-rumqtt = "0.31.0"
-scoped_threadpool = "0.1.9"
-serde = { version = "1.0.103", features = ["derive"] }
-serde_json = "1.0.42"
-sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo" }
-systemstat = "0.1.5"
-toml = "0.5.5"
-
 
 [profile.dev]
 opt-level = 0
@@ -59,12 +19,11 @@ incremental = true
 overflow-checks = true
 
 [profile.release]
-opt-level = 3
+opt-level = 2
 debug = false
 rpath = false
-lto = false
+lto = true
 debug-assertions = false
-codegen-units = 16
-panic = 'unwind'
+codegen-units = 1
 incremental = false
 overflow-checks = false

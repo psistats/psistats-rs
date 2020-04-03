@@ -2,10 +2,13 @@ pub mod cpu;
 pub mod mem;
 pub mod ip_addrs;
 pub mod os;
+pub mod pingpong;
 use std::{fmt, error};
 use serde::{Deserialize, Serialize};
 use toml::Value;
 use toml::map::Map;
+use std::future::Future;
+
 
 
 #[derive(Debug, Clone)]
@@ -17,6 +20,7 @@ pub fn get_reporter(id: String) -> Option<ReporterCb> {
         "mem" => Some(mem::mem_reporter),
         "ip_addrs" => Some(ip_addrs::ip_addrs_reporter),
         "os" => Some(os::os_reporter),
+        "pingpong" => Some(pingpong::pingpong_reporter),
         _ => None
     }
 }
@@ -33,7 +37,8 @@ impl error::Error for ReporterError {
     }
 }
 
-pub type ReporterCb = fn(conf: &Map<String, Value>) -> Report;
+
+pub type ReporterCb = fn(conf: &Map<String, Value>) -> impl Future<Report>;
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Report {

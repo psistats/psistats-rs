@@ -3,30 +3,27 @@ hostname="localhost"
 workers=2
 timer=1000
 
-[r_cpu]
+[logging]
+level="info"
+
+
+
+[[r_plugin]]
+name="cpu"
 enabled=true
 interval=1
+config.show_total=false
 
-[r_mem]
+[[r_plugin]]
+name="memory"
 enabled=true
-interval=10
+interval=5
 
-[r_ip_addrs]
-enabled=true
+[[r_plugin]]
+name="ipaddrs"
+enabled=false
 interval=0
 
-[r_os]
+[[p_plugin]]
+name="logger"
 enabled=true
-interval=0
-
-[p_log]
-enabled=true
-
-[p_mqtt]
-enabled=true
-hostname="localhost"
-username=""
-password=""
-port=1883
-client_id="psistats-client"
-suffix="psistats"
