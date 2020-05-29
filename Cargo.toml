@@ -4,7 +4,8 @@ members = [
     "psistats_plugins/cpu",
     "psistats_plugins/logger",
     "psistats_plugins/memory",
-    "psistats_plugins/ipaddrs"
+    "psistats_plugins/ipaddrs",
+    "psistats_plugins/sensors"
 ]
 
 [profile.dev]
