@@ -105,6 +105,12 @@ pipeline {
         archiveArtifacts artifacts: 'target/release/artifacts/**/*', onlyIfSuccessful: true
       }
     }
+    stage('Deploy') {
+      when { tag "v*" }
+      steps {
+          echo 'Should publish debian package!'
+      }
+    }   
   }
   post {
     success {

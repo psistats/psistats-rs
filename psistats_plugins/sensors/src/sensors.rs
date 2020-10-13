@@ -2,30 +2,40 @@ use sensors::Sensors;
 use lazy_static::lazy_static;
 use psistats::PsistatsReport;
 use psistats::ReportValue;
+use std::collections::HashMap;
 
 lazy_static! {
   static ref SENSORS: Sensors = Sensors::new();
 }
 
 pub fn get_report() -> PsistatsReport {
+
+
+  let mut sensorData:HashMap<String, ReportValue> = HashMap::new();
+
   for chip in *SENSORS {
-    println!(
-      "{} (on {})",
-      chip.get_name().unwrap(),
-      chip.bus().get_adapter_name().unwrap()
-    );
+
+    let mut chipData:HashMap<String, ReportValue> = HashMap::new();
+
+    let chipName = chip.get_name().unwrap();
 
     for feature in chip {
-      println!("  - {}", feature.get_label().unwrap());
+
+      let mut featureData:HashMap<String, ReportValue> = HashMap::new();
+      let featureName = feature.name().to_string();
+
+
       for subfeature in feature {
-        println!(
-          "    - {} = {}",
-          subfeature.name(),
-          subfeature.get_value().unwrap()
-        );
+        let subname = subfeature.name().clone().to_string();
+        let value = subfeature.get_value().unwrap().clone();
+        featureData.insert(subname, ReportValue::Float(value));
       }
+
+      chipData.insert(featureName, ReportValue::Object(featureData));
     }
+
+    sensorData.insert(chipName, ReportValue::Object(chipData));
   }
 
-  return PsistatsReport::new("sensors", ReportValue::String("foobar".to_string()));
+  return PsistatsReport::new("sensors", ReportValue::Object(sensorData));
 }
