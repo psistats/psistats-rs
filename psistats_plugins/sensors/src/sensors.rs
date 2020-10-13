@@ -1,13 +1,22 @@
+#[cfg(not(target_os = "windows"))]
 use sensors::Sensors;
+
 use lazy_static::lazy_static;
 use psistats::PsistatsReport;
 use psistats::ReportValue;
 use std::collections::HashMap;
 
+#[cfg(target_os = "windows")]
+pub fn get_report() -> PsistatsReport {
+  return PsistatsReport::new("sensors", ReportValue::String("Sensors are not available on windows"));
+}
+
+#[cfg(not(target_os = "windows"))]
 lazy_static! {
   static ref SENSORS: Sensors = Sensors::new();
 }
 
+#[cfg(not(target_os = "windows"))]
 pub fn get_report() -> PsistatsReport {
 
 
