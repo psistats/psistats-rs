@@ -6,23 +6,28 @@ timer=1000
 [logging]
 level="info"
 
-
-
 [[r_plugin]]
 name="cpu"
-enabled=true
+enabled=false
 interval=1
 config.show_total=false
 
 [[r_plugin]]
 name="memory"
-enabled=true
+enabled=false
 interval=5
 
 [[r_plugin]]
 name="ipaddrs"
 enabled=false
 interval=0
+
+[[r_plugin]]
+name="weather_envcanada"
+enabled=true
+interval=600
+config.province="QC"
+config.cityCode="s0000635"
 
 [[p_plugin]]
 name="logger"

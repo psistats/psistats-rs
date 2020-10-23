@@ -69,7 +69,7 @@ pub fn main(conf_file: &str, plugin_dir: &str) {
           plugin.call(rconf).unwrap();
         },
         Err(err) => {
-          error!("{}", err);
+          warn!("{}", err);
         }
       }
     }
