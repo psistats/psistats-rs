@@ -29,6 +29,12 @@ def updateGithubCommitStatus(build) {
   ])
 }
 
+def aptly(build) {
+  build.rawBuild.artifacts.each {
+    println it.fileName
+  }
+}
+
 pipeline {
 
   agent {
@@ -103,6 +109,11 @@ pipeline {
     stage('Publish') {
       steps {
         archiveArtifacts artifacts: 'target/release/artifacts/**/*', onlyIfSuccessful: true
+      }
+    }
+    stage('Deploy') {
+      steps {
+        aptly(currentBuild)
       }
     }
   }
