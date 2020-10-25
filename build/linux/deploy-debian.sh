@@ -15,12 +15,10 @@ echo "Artifacts directory: $ARTIFACTS_DIR"
 
 #cd $ARTIFACTS_DIR
 
-for f in *.deb; do
-    DEB_FILE=$ARTIFACTS_DIR/$f
+for f in $ARTIFACTS_DIR/*.deb; do
+    DEB_FILE="${f}"
     echo "Debian file: $DEB_FILE"
-    ./add.sh $COMPONENT $DEB_FILE
+    ./add.sh "$COMPONENT" "$DEB_FILE"
+    ./publish.sh $COMPONENT
 done
-
-./publish.sh
-
 
