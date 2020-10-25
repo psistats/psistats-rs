@@ -16,8 +16,18 @@ if [ -z ${target_map[$TARGET]+"check"} ]; then
 fi
 PROJECT_ARCH=${target_map[$TARGET]}
 
+
+
+
 ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PROJECT_DIR="$( realpath "$ME/../../" )"
+
+export RUSTFLAGS=""
+
+if [ $PROJECT_ARCH == "armhf" ]; then
+  RUSTFLAGS="$RUSTFLAGS -L $ME/3rdparty/libsensors/lib"
+fi
+
 cd $PROJECT_DIR
 
 cargo install cargo-config cargo-deb
@@ -42,6 +52,10 @@ UNZIPPED_DIR=${RELEASE_DIR}/unzipped/${PROJECT_NAME}-${DEBIAN_VERSION}-${PROJECT
 rm -rf $ARTIFACT_DIR
 rm -rf ${RELEASE_DIR}/unzipped
 
+#                   /3rdparty/libsensors4-dev-armhf/usr/include
+
+# RUSTFLAGS="-l sensors -L ${ME}/3rdparty/libsensors4-dev-armhf/usr/include/sensors" cargo build --target $TARGET --release
+echo "RUST FLAGS: $RUSTFLAGS"
 cargo build --target $TARGET --release
 
 mkdir -p $UNZIPPED_DIR
