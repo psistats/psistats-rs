@@ -20,6 +20,11 @@ enabled=true
 interval=5
 
 [[r_plugin]]
+name="sensors"
+enabled=false
+interval=1
+
+[[r_plugin]]
 name="ipaddrs"
 enabled=false
 interval=0
