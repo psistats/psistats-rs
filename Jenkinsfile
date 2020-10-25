@@ -65,7 +65,6 @@ pipeline {
             }
           }
         }
-
         stage('Windows') {
 
           stages {
@@ -103,6 +102,12 @@ pipeline {
     stage('Publish') {
       steps {
         archiveArtifacts artifacts: 'target/release/artifacts/**/*', onlyIfSuccessful: true
+      }
+    }
+    stage('Deploy') {
+      when { branch "master" }
+      steps {
+        sh 'build/linux/deploy-debian.sh testing'
       }
     }
   }
