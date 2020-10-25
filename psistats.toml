@@ -21,7 +21,7 @@ interval=5
 
 [[r_plugin]]
 name="sensors"
-enabled=true
+enabled=false
 interval=1
 
 [[r_plugin]]
