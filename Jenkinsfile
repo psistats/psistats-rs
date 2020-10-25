@@ -64,16 +64,13 @@ pipeline {
                 sh 'build/linux/build.sh x86_64-unknown-linux-gnu'
               }
             }
-            /*
             stage('Build Raspberry Pi') {
               steps {
                 sh 'build/linux/build.sh armv7-unknown-linux-gnueabihf'
               }
             }
-            */
           }
         }
-        /*
         stage('Windows') {
 
           stages {
@@ -106,7 +103,6 @@ pipeline {
             }
           }
         }
-        */
       }
     }
     stage('Publish') {
