@@ -29,12 +29,6 @@ def updateGithubCommitStatus(build) {
   ])
 }
 
-def aptly(build) {
-  build.rawBuild.artifacts.each {
-    println it.fileName
-  }
-}
-
 pipeline {
 
   agent {
@@ -110,9 +104,11 @@ pipeline {
         archiveArtifacts artifacts: 'target/release/artifacts/**/*', onlyIfSuccessful: true
       }
     }
-    stage('Deploy') {
-      steps {
-        sh 'build/linux/deploy-debian.sh testing'
+    if (env.BRANCH_NAME == 'master') {
+      stage('Deploy') {
+        steps {
+          sh 'build/linux/deploy-debian.sh testing'
+        }
       }
     }
   }
