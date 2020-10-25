@@ -106,6 +106,7 @@ pipeline {
     }
     if (env.BRANCH_NAME == 'master') {
       stage('Deploy') {
+        when { branch "master" }
         steps {
           sh 'build/linux/deploy-debian.sh testing'
         }
