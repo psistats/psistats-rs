@@ -104,12 +104,10 @@ pipeline {
         archiveArtifacts artifacts: 'target/release/artifacts/**/*', onlyIfSuccessful: true
       }
     }
-    if (env.BRANCH_NAME == 'master') {
-      stage('Deploy') {
-        when { branch "master" }
-        steps {
-          sh 'build/linux/deploy-debian.sh testing'
-        }
+    stage('Deploy') {
+      when { branch "master" }
+      steps {
+        sh 'build/linux/deploy-debian.sh testing'
       }
     }
   }
