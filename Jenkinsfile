@@ -113,7 +113,7 @@ pipeline {
     }
     stage('Deploy') {
       steps {
-        aptly(currentBuild)
+        sh 'build/linux/deploy-debian.sh testing'
       }
     }
   }
