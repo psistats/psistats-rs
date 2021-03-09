@@ -1,9 +1,10 @@
 use crate::PsistatsReport;
 use crate::PluginRegistrar;
 use crate::service::manager::PluginCommands;
-use crate::{ ServiceConfig, PublisherConfig };
+use crate::{ ServiceConfig, PublisherConfig, PsistatsSettings };
 use std::sync::{Mutex, Arc};
 use crossbeam_channel::{Receiver, Sender};
+use std::rc::Rc;
 
 pub struct ManagerBuilder<'a> {
   r_recv: Option<Receiver<PsistatsReport>>,
@@ -43,7 +44,8 @@ impl<'a> ManagerBuilder<'a> {
       r_recv: self.r_recv.as_ref().unwrap().clone(),
       c_send: self.c_send.as_ref().unwrap().clone(),
       registrar: &self.registrar.as_ref().unwrap().clone(),
-      publisher_configs: publisher_configs
+      publisher_configs: publisher_configs,
+      settings: &conf.settings
     };
 
     return rm;
@@ -54,7 +56,8 @@ pub struct Manager<'a> {
   r_recv: Receiver<PsistatsReport>,
   c_send: Sender<PluginCommands>,
   registrar: &'a Arc<Mutex<Box<dyn PluginRegistrar + Send>>>,
-  publisher_configs: Vec<&'a PublisherConfig>
+  publisher_configs: Vec<&'a PublisherConfig>,
+  settings: &'a PsistatsSettings
 }
 
 impl<'a> Manager<'a> {
@@ -63,10 +66,12 @@ impl<'a> Manager<'a> {
     match self.r_recv.recv() {
       Ok(report) => {
 
+        //let r = Rc::new(report);
+
         for pconf in self.publisher_configs.iter() {
           let reg = self.registrar.lock().unwrap();
           let publisher = reg.get_publisher(pconf.get_name()).unwrap();
-          publisher.call(&report, pconf).unwrap();
+          publisher.call(report.clone(), pconf, self.settings).unwrap();
         }
       },
       Err(_) => {

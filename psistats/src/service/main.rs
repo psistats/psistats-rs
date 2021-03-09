@@ -43,7 +43,7 @@ pub fn main(conf_file: &str, plugin_dir: &str) {
 
       match registrar.get_publisher_init(pconf.get_name()) {
         Ok(plugin) => {
-          plugin.call(pconf).unwrap();
+          plugin.call(pconf, &conf.settings).unwrap();
         },
         Err(err) => {
           error!("{}", err);
