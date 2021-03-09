@@ -63,7 +63,7 @@ pipeline {
                 sh 'build/linux/build.sh armv7-unknown-linux-gnueabihf'
               }
             }
-            state('Build Arm64') {
+            stage('Build Arm64') {
               steps {
                 sh 'build/linux/build.sh aarch64-unknown-linux-gnu'
               }
