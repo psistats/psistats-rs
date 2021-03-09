@@ -58,9 +58,14 @@ pipeline {
                 sh 'build/linux/build.sh x86_64-unknown-linux-gnu'
               }
             }
-            stage('Build Raspberry Pi') {
+            stage('Build ArmV7') {
               steps {
                 sh 'build/linux/build.sh armv7-unknown-linux-gnueabihf'
+              }
+            }
+            stage('Build Arm64') {
+              steps {
+                sh 'build/linux/build.sh aarch64-unknown-linux-gnu'
               }
             }
           }

@@ -12,7 +12,7 @@ name = "plugin_sensors"
 
 [dependencies]
 psistats = { path = "../../psistats" }
-crossbeam-channel = "0.4.2"
+crossbeam-channel = "0.5.0"
 lazy_static = "1.4.0"
 
 [target.'cfg(not(target_os = "windows"))'.dependencies]

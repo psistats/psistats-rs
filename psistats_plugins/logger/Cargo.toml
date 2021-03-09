@@ -12,6 +12,6 @@ name = "plugin_logger"
 
 [dependencies]
 psistats = { path = "../../psistats" }
-log = "0.4.8"
+log = "0.4.14"
 pretty_env_logger = "0.4.0"
 
