@@ -1,5 +1,5 @@
 [settings]
-hostname="localhost"
+hostname=""
 workers=2
 timer=1000
 
