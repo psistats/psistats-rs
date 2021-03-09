@@ -14,4 +14,5 @@ name = "plugin_cpu"
 psistats = { path = "../../psistats" }
 crossbeam-channel = "0.5.0"
 lazy_static = "1.4.0"
-sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo" }
+# sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo" }
+sysinfo = "0.16.4"

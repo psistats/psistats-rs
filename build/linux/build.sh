@@ -2,9 +2,25 @@
 set -e
 TARGET=$1
 
+if [ -z "$TARGET" ]
+then
+    TARGET="x86_64-unknown-linux-gnu"
+fi
+
 declare -A target_map
 target_map["armv7-unknown-linux-gnueabihf"]="armhf"
 target_map["x86_64-unknown-linux-gnu"]="amd64"
+target_map["aarch64-unknown-linux-gnu"]="arm64"
+
+declare -A target_ar_map
+target_ar_map["armv7-unknown-linux-gnueabihf"]="/usr/bin/arm-linux-gnueabihf-gcc-ar-7"
+target_ar_map["x86_64-unknown-linux-gnu"]="/usr/bin/x86_64-linux-gnu-gcc-ar"
+target_ar_map["aarch64-unknown-linux-gnu"]="/usr/bin/aarch64-linux-gnu-gcc-ar-8"
+
+declare -A target_cc_map
+target_cc_map["armv7-unknown-linux-gnueabihf"]="/usr/bin/arm-linux-gnueabihf-gcc"
+target_cc_map["x86_64-unknown-linux-gnu"]="/usr/bin/x86_64-linux-gnu-gcc"
+target_cc_map["aarch64-unknown-linux-gnu"]="/usr/bin/aarch64-linux-gnu-gcc-8"
 
 if [ -z ${target_map[$TARGET]+"check"} ]; then
   echo "Invalid target architecture. Must be one of: "
@@ -15,8 +31,13 @@ if [ -z ${target_map[$TARGET]+"check"} ]; then
   exit 1
 fi
 PROJECT_ARCH=${target_map[$TARGET]}
+export TARGET_AR=${target_ar_map[$TARGET]}
+export TARGET_CC=${target_cc_map[$TARGET]}
 
+echo "Target AR: ${TARGET_AR}"
+echo "Target CC: ${TARGET_CC}"
 
+rustup target add ${TARGET}
 
 
 ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -28,8 +49,13 @@ if [ $PROJECT_ARCH == "armhf" ]; then
   RUSTFLAGS="$RUSTFLAGS -L $ME/3rdparty/libsensors/lib"
 fi
 
-cd $PROJECT_DIR
+if [ $PROJECT_ARCH == "arm64" ]; then
+  RUSTFLAGS="$RUSTFLAGS -L $ME/3rdparty/libsensors-arm64/lib"
+fi
 
+
+cd $PROJECT_DIR
+cargo clean
 cargo install cargo-config cargo-deb
 
 cd $PROJECT_DIR/psistats
