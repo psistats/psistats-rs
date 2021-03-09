@@ -13,14 +13,14 @@ target_map["x86_64-unknown-linux-gnu"]="amd64"
 target_map["aarch64-unknown-linux-gnu"]="arm64"
 
 declare -A target_ar_map
-target_ar_map["armv7-unknown-linux-gnueabihf"]="/usr/bin/arm-linux-gnueabihf-gcc-ar-7"
+target_ar_map["armv7-unknown-linux-gnueabihf"]="/usr/bin/arm-linux-gnueabihf-gcc-ar"
 target_ar_map["x86_64-unknown-linux-gnu"]="/usr/bin/x86_64-linux-gnu-gcc-ar"
-target_ar_map["aarch64-unknown-linux-gnu"]="/usr/bin/aarch64-linux-gnu-gcc-ar-8"
+target_ar_map["aarch64-unknown-linux-gnu"]="/usr/bin/aarch64-linux-gnu-gcc-ar"
 
 declare -A target_cc_map
 target_cc_map["armv7-unknown-linux-gnueabihf"]="/usr/bin/arm-linux-gnueabihf-gcc"
 target_cc_map["x86_64-unknown-linux-gnu"]="/usr/bin/x86_64-linux-gnu-gcc"
-target_cc_map["aarch64-unknown-linux-gnu"]="/usr/bin/aarch64-linux-gnu-gcc-8"
+target_cc_map["aarch64-unknown-linux-gnu"]="/usr/bin/aarch64-linux-gnu-gcc"
 
 if [ -z ${target_map[$TARGET]+"check"} ]; then
   echo "Invalid target architecture. Must be one of: "
