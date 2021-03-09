@@ -1,5 +1,5 @@
 [settings]
-hostname="neuromancer"
+hostname=""
 workers=2
 timer=1000
 
