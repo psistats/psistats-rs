@@ -1,5 +1,5 @@
 [package]
-name = "psistats_plugin_cpu"
+name = "psistats_plugin_mqttpub"
 version = "0.2.0-alpha"
 authors = ["Alex Dow <adow@psikon.com>"]
 edition = "2018"
@@ -8,10 +8,12 @@ edition = "2018"
 
 [lib]
 crate-type = ["cdylib"]
-name = "plugin_cpu"
+name = "plugin_mqttpub"
 
 [dependencies]
 psistats = { path = "../../psistats" }
 crossbeam-channel = "0.5.0"
 lazy_static = "1.4.0"
-sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo" }
+rumqttc = "0.5.0"
+rand = "0.7.3"
+toml = "0.5.7"

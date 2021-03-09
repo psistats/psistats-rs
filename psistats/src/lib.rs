@@ -1,7 +1,7 @@
 pub mod plugins;
 pub mod service;
 pub mod config;
-pub use config::{PublisherConfig, ReporterConfig, ServiceConfig, Settings};
+pub use config::{PublisherConfig, ReporterConfig, ServiceConfig, PsistatsSettings};
 
 pub use plugins::api::{
     PublisherInitFunction, PublisherFunction, ReporterInitFunction, ReporterFunction,

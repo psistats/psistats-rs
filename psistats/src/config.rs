@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use std::fs::read_to_string;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Settings {
+pub struct PsistatsSettings {
     pub hostname: String,
     pub workers: u16,
     pub timer: u32
@@ -75,7 +75,7 @@ impl LoggingConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ServiceConfig {
-    pub settings: Settings,
+    pub settings: PsistatsSettings,
 
     pub logging: LoggingConfig,
 
