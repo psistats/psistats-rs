@@ -5,7 +5,8 @@ members = [
     "psistats_plugins/logger",
     "psistats_plugins/memory",
     "psistats_plugins/ipaddrs",
-    "psistats_plugins/sensors"
+    "psistats_plugins/sensors",
+    "psistats_plugins/mqttpub"
 ]
 
 [profile.dev]

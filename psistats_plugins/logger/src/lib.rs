@@ -7,6 +7,9 @@ use psistats::PluginRegistrar;
 use psistats::PsistatsReport;
 use psistats::PluginError;
 use psistats::FunctionType;
+use psistats::PsistatsSettings;
+
+use std::rc::Rc;
 
 
 extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send>) {
@@ -20,7 +23,7 @@ psistats::export_plugin!(register);
 struct Init;
 
 impl PublisherInitFunction for Init {
-    fn call(&self, _: &PublisherConfig) -> Result<(), PluginError> {
+    fn call(&self, _: &PublisherConfig, _: &PsistatsSettings) -> Result<(), PluginError> {
       pretty_env_logger::init();
       Ok(())
     }
@@ -30,7 +33,7 @@ impl PublisherInitFunction for Init {
 struct Publisher;
 
 impl PublisherFunction for Publisher {
-    fn call(&self, report: &PsistatsReport, _: &PublisherConfig) -> Result<(), PluginError> {
+    fn call(&self, report: PsistatsReport, _: &PublisherConfig, _: &PsistatsSettings) -> Result<(), PluginError> {
       info!("{:?}", report);
 
       // let r = PsistatsReport::new("foobar", ReportValue::String("FoobaR!".to_string()));

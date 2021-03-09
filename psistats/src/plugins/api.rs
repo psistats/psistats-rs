@@ -1,9 +1,11 @@
 use std::sync::Arc;
+use std::rc::Rc;
 use libloading;
 use serde::{Serialize, Deserialize};
+use serde_json;
 use std::fmt;
 use std::collections::HashMap;
-use crate::{ ReporterConfig, PublisherConfig };
+use crate::{ ReporterConfig, PublisherConfig, PsistatsSettings };
 
 /// List of plugin function types
 pub enum FunctionType {
@@ -33,12 +35,12 @@ pub trait ReporterInitFunction {
 /// A publisher function is called every time a report has been
 /// generated
 pub trait PublisherFunction {
-    fn call(&self, report: &PsistatsReport, config: &PublisherConfig) -> Result<(), PluginError>;
+    fn call(&self, report: PsistatsReport, config: &PublisherConfig, settings: &PsistatsSettings) -> Result<(), PluginError>;
 }
 
 /// A publisher init function is called when psistats service starts
 pub trait PublisherInitFunction {
-    fn call(&self, config: &PublisherConfig) -> Result<(), PluginError>;
+    fn call(&self, config: &PublisherConfig, settings: &PsistatsSettings) -> Result<(), PluginError>;
 }
 
 #[derive(Debug, Clone)]
@@ -146,5 +148,9 @@ impl PsistatsReport {
 
     pub fn get_value(&self) -> &ReportValue {
         return &self.value;
+    }
+
+    pub fn as_json(&self) -> String {
+      return serde_json::to_string(self).unwrap();
     }
 }

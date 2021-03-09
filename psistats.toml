@@ -1,5 +1,5 @@
 [settings]
-hostname="localhost"
+hostname="neuromancer"
 workers=2
 timer=1000
 
@@ -31,4 +31,13 @@ interval=0
 
 [[p_plugin]]
 name="logger"
+enabled=false
+
+[[p_plugin]]
+name="mqttpub"
 enabled=true
+config.mqtthost="localhost"
+config.mqttport="1883"
+config.username=""
+config.password=""
+config.prefix="psistats"
