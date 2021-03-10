@@ -1,10 +1,17 @@
-# psistats-rs
-## A simple reporting tool
+# psistats
 
-Psistats aims to be a simple and efficient reporting tool. With a basic and easy plugin architecture, it's easy to create plugins that can report on anything you wish and publish those reports anywhere you want.
+Psistats is small and simple reporting tool. It can report on a variety of different statistics including CPU and memory usage. It is inspired by the venerable [collectd](https://github.com/collectd/collectd).
 
-This tool is inspired by collectd. It is built for Linux amd64/arm and Windows.
+It is built upon a plugin architecture to make it easier to add more functionality.
 
-It has a variety of simple plugins out of the box. Please feel free to contribute plugins.
+Still in active development.
 
+### Building
 
+This project should build as is for 64bit linux and windows. To create 32bit and 64bit ARM builds on Linux, you must install the following packages:
+
+* qemu-user
+* gcc-aarch64-linux-gnu
+* libc6-dev-arm64-cross
+* gcc-arm-linux-gnueabihf
+* libc6-dev-armhf-cross

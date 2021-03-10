@@ -14,6 +14,8 @@ extern crate pretty_env_logger;
 use crossbeam_channel::{ unbounded };
 use std::time::Duration;
 
+use gethostname;
+
 #[global_allocator]
 static ALLOCATOR: System = System;
 
@@ -22,12 +24,17 @@ pub fn main(conf_file: &str, plugin_dir: &str) {
 
   let pl: PluginLoader = PluginLoader::new(plugin_dir.to_string());
 
-  let conf = config::ServiceConfig::from_file(PathBuf::from(conf_file));
+  let mut conf = config::ServiceConfig::from_file(PathBuf::from(conf_file));
+
+  if conf.settings.hostname == "" {
+    conf.settings.hostname = gethostname::gethostname().into_string().unwrap().to_lowercase();
+  }
 
   env::set_var("RUST_LOG", conf.logging.get_level());
   pretty_env_logger::init();
 
-  info!("Psistats now starting ...");
+  info!("=[ PSISTATS ]=");
+  info!("Hostname: {}", conf.settings.hostname);
 
   unsafe {
     for pconf in conf.get_publisher_configs().iter().filter(|c| c.is_enabled()) {
@@ -43,7 +50,7 @@ pub fn main(conf_file: &str, plugin_dir: &str) {
 
       match registrar.get_publisher_init(pconf.get_name()) {
         Ok(plugin) => {
-          plugin.call(pconf).unwrap();
+          plugin.call(pconf, &conf.settings).unwrap();
         },
         Err(err) => {
           error!("{}", err);

@@ -9,7 +9,7 @@ use rand::{Rng, thread_rng};
 use rand::distributions::Alphanumeric;
 
 lazy_static! {
-    static ref CLIENT: Mutex<Mqtt> = Mutex::new(Mqtt::new());
+    pub static ref CLIENT: Mutex<Mqtt> = Mutex::new(Mqtt::new());
 }
 
 pub struct Mqtt {

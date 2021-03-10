@@ -1,5 +1,5 @@
 [settings]
-hostname="localhost"
+hostname=""
 workers=2
 timer=1000
 
@@ -20,10 +20,24 @@ enabled=true
 interval=5
 
 [[r_plugin]]
+name="sensors"
+enabled=false
+interval=1
+
+[[r_plugin]]
 name="ipaddrs"
 enabled=false
 interval=0
 
 [[p_plugin]]
 name="logger"
+enabled=false
+
+[[p_plugin]]
+name="mqttpub"
 enabled=true
+config.mqtthost="localhost"
+config.mqttport="1883"
+config.username=""
+config.password=""
+config.prefix="psistats"
