@@ -18,6 +18,7 @@ license-file = ["../LICENSE", "0"]
 extended-description = """\
 A simple system metrics reporting tool"""
 # depends = "$auto, systemd"
+depends = ""
 recommends = "libsensors"
 section = "utility"
 priority = "optional"
