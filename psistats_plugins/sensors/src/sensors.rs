@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 #[cfg(target_os = "windows")]
 pub fn get_report() -> ReportValue {
-  return PsistatsReport::new("sensors", ReportValue::String("Sensors are not available on windows".to_string()));
+  return ReportValue::String("Sensors are not available on windows".to_string());
 }
 
 #[cfg(not(target_os = "windows"))]
