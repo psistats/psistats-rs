@@ -1,38 +1,108 @@
+# Psistats Configuration
+#
+# [settings] and [logging] control global settings.
+#
+# Reporter plugins are configured inside [[r_plugin]] sections.
+# Publisher plugins are configured inside [[p_plugin]] sections.
+#
+# Every plugin required at least three settings:
+# name     - the name of the plugin
+# enabled  - Set true to enable the plugin, or false to disable it.
+# interval - For reporters, this is the interval that they report.
+#            If set to 0 but enabled is true, the plugin will be loaded
+#            and could be triggered on demand.
+#
+# Individual plugins could have additional configuration keys
+# prefixed with "config."
+
+
+#
+# Global settings
+#
 [settings]
+# Manually set the name of this machine. If left blank the system's hostname
+# will be used.
 hostname=""
+
+# unused
 workers=2
+
+#unused
 timer=1000
 
+#
+# Global logging settings
+#
 [logging]
+# Set the logging level. Can be error, warning, info, debug, trace
 level="info"
 
+#
+# Reporting Plugins
+#
 
-
+# CPU Reporter
+#
+# Reports current cpu usage in percentage.
+#
+# Configuration:
+# config.show_total - If set to false, then an array will be reported
+#                     with usage percent for each core. Otherwise Reports
+#                     total cpu usage.
 [[r_plugin]]
 name="cpu"
 enabled=true
 interval=1
 config.show_total=false
 
+# Memory Reporter
+#
+# Reports the current total memory and total memory usage.
+#
 [[r_plugin]]
 name="memory"
 enabled=true
 interval=5
 
+# Sensors
+#
+# Reports the values of all available sensors. This plugin will do nothing
+# on Windows. On Linux or Unix based systems, libsensors must be installed.
 [[r_plugin]]
 name="sensors"
 enabled=false
 interval=1
 
+# IP Addresses
+#
+# Reports all IP Addresses available on the system.
 [[r_plugin]]
 name="ipaddrs"
 enabled=false
 interval=0
 
+#
+# Publishing Plugins
+#
+
+# Logger
+#
+# Logs all reports to stdout
 [[p_plugin]]
 name="logger"
 enabled=false
 
+# MQTT Publisher
+#
+# Logs all reports to an MQTT server.
+# The mqtt path will be config.prefix + '/' + hostname.
+#
+# Configuration
+# config.mqtthost  - Host or IP address of the MQTT server.
+# config.mqttport  - Port number of the MQTT server
+# config.username  - MQTT username (if any)
+# config.password  - MQTT password (if any)
+# config.prefix    - MQTT topic prefix
 [[p_plugin]]
 name="mqttpub"
 enabled=true
