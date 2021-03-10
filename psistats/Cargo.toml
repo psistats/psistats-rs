@@ -17,7 +17,8 @@ copyright = "2019, Alex Dow <adow@psikon.com>"
 license-file = ["../LICENSE", "0"]
 extended-description = """\
 A simple system metrics reporting tool"""
-depends = "$auto, systemd"
+# depends = "$auto, systemd"
+recommends = "libsensors"
 section = "utility"
 priority = "optional"
 conf-files = ["/etc/psistats/psistats.toml"]
