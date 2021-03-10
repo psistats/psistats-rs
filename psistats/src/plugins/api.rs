@@ -24,7 +24,7 @@ pub enum FunctionType {
 /// A reporter function is called on demand and/or on an interval
 /// It generates reports that can then be published
 pub trait ReporterFunction {
-    fn call(&self, config: &ReporterConfig) -> Result<PsistatsReport, PluginError>;
+    fn call(&self, config: &ReporterConfig) -> Result<ReportValue, PluginError>;
 }
 
 /// A reporter init function is called when psistats service starts
@@ -73,6 +73,11 @@ impl std::error::Error for PluginError {
 
 /// A plugin registrar is used to register plugins.
 pub trait PluginRegistrar {
+
+    fn register_publisher_init(&mut self, name: &str, func: Box<dyn PublisherInitFunction + Send>);
+    fn register_publisher(&mut self, name: &str, func: Box<dyn PublisherFunction + Send>);
+    fn register_reporter_init(&mut self, name: &str, func: Box<dyn ReporterInitFunction + Send>);
+    fn register_reporter(&mut self, name: &str, func: Box<dyn ReporterFunction + Send>);
 
     /// Each plugin will need to call this method to register
     /// each function the plugin as available

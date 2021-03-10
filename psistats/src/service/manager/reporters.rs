@@ -2,6 +2,7 @@ use crate::PsistatsReport;
 use crate::PluginRegistrar;
 use crate::service::manager::PluginCommands;
 use crate::{ ServiceConfig, ReporterConfig };
+
 use std::sync::{Mutex, Arc};
 use crossbeam_channel::{Receiver, Sender};
 use std::collections::HashMap;
@@ -87,7 +88,9 @@ impl<'a> Manager<'a> {
           let reg = self.registrar.lock().unwrap();
           let reporter = reg.get_reporter(reporter_name).unwrap();
           let rconf = self.reporter_configs.get(reporter_name).unwrap();
-          let report = reporter.call(rconf).unwrap();
+          let output = reporter.call(rconf).unwrap();
+
+          let report = PsistatsReport::new(reporter_name, output);
           self.report_send.send(report).unwrap();
         }
       }

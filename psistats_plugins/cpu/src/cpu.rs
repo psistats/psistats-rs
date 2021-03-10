@@ -5,12 +5,11 @@ use sysinfo::{ProcessorExt, SystemExt};
 use sysinfo;
 use psistats::plugins::api;
 use std::thread;
-use psistats::PsistatsReport;
 use psistats::PluginError;
 
 lazy_static! {
     static ref SYS_CHANNEL: (Sender<String>, Receiver<String>) = unbounded();
-    static ref REPORT_CHANNEL: (Sender<PsistatsReport>, Receiver<PsistatsReport>) = unbounded();
+    static ref REPORT_CHANNEL: (Sender<api::ReportValue>, Receiver<api::ReportValue>) = unbounded();
 }
 
 pub fn start_cpu_thread() {
@@ -28,7 +27,7 @@ pub fn start_cpu_thread() {
                         return api::ReportValue::Float(p.get_cpu_usage().into());
                     }).collect();
 
-                    let pr = api::PsistatsReport::new("cpu", api::ReportValue::Array(msg));
+                    let pr = api::ReportValue::Array(msg);
                     REPORT_CHANNEL.0.send(pr).unwrap();
                 },
                 Err(_) => ()
@@ -37,7 +36,7 @@ pub fn start_cpu_thread() {
     });
 }
 
-pub fn get_report() -> Result<PsistatsReport, PluginError> {
+pub fn get_report() -> Result<api::ReportValue, PluginError> {
     SYS_CHANNEL.0.send("Foobar!".to_string()).unwrap();
 
     match REPORT_CHANNEL.1.recv() {

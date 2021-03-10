@@ -9,7 +9,7 @@ use psistats::FunctionType;
 struct Reporter;
 
 impl ReporterFunction for Reporter {
-    fn call(&self, _: &ReporterConfig) -> Result<PsistatsReport, PluginError> {
+    fn call(&self, _: &ReporterConfig) -> Result<ReportValue, PluginError> {
         let mut ips = vec![];
 
         for iface in get_if_addrs().unwrap() {
@@ -17,8 +17,8 @@ impl ReporterFunction for Reporter {
             ips.push(ReportValue::String(format!("{:#?}", ip)));
         }
 
-        Ok(PsistatsReport::new("ipaddrs", ReportValue::Array(ips)))
-    
+        Ok(ReportValue::Array(ips))
+
     }
 }
 

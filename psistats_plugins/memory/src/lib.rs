@@ -4,7 +4,7 @@ use psistats::PluginRegistrar;
 use psistats::PsistatsReport;
 use psistats::PluginError;
 use psistats::FunctionType;
-
+use psistats::ReportValue;
 
 mod memory;
 
@@ -29,7 +29,7 @@ impl ReporterInitFunction for Init {
 struct Reporter;
 
 impl ReporterFunction for Reporter {
-    fn call(&self, _: &ReporterConfig) -> Result<PsistatsReport, PluginError> {
+    fn call(&self, _: &ReporterConfig) -> Result<ReportValue, PluginError> {
         return memory::get_report();
     }
 }

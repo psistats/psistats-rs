@@ -2,12 +2,11 @@
 use sensors::Sensors;
 
 use lazy_static::lazy_static;
-use psistats::PsistatsReport;
 use psistats::ReportValue;
 use std::collections::HashMap;
 
 #[cfg(target_os = "windows")]
-pub fn get_report() -> PsistatsReport {
+pub fn get_report() -> ReportValue {
   return PsistatsReport::new("sensors", ReportValue::String("Sensors are not available on windows".to_string()));
 }
 
@@ -17,34 +16,34 @@ lazy_static! {
 }
 
 #[cfg(not(target_os = "windows"))]
-pub fn get_report() -> PsistatsReport {
+pub fn get_report() -> ReportValue {
 
 
-  let mut sensorData:HashMap<String, ReportValue> = HashMap::new();
+  let mut sensor_data:HashMap<String, ReportValue> = HashMap::new();
 
   for chip in *SENSORS {
 
-    let mut chipData:HashMap<String, ReportValue> = HashMap::new();
+    let mut chip_data:HashMap<String, ReportValue> = HashMap::new();
 
-    let chipName = chip.get_name().unwrap();
+    let chip_name = chip.get_name().unwrap();
 
     for feature in chip {
 
-      let mut featureData:HashMap<String, ReportValue> = HashMap::new();
-      let featureName = feature.name().to_string();
+      let mut feature_data:HashMap<String, ReportValue> = HashMap::new();
+      let feature_name = feature.name().to_string();
 
 
       for subfeature in feature {
         let subname = subfeature.name().clone().to_string();
         let value = subfeature.get_value().unwrap().clone();
-        featureData.insert(subname, ReportValue::Float(value));
+        feature_data.insert(subname, ReportValue::Float(value));
       }
 
-      chipData.insert(featureName, ReportValue::Object(featureData));
+      chip_data.insert(feature_name, ReportValue::Object(feature_data));
     }
 
-    sensorData.insert(chipName, ReportValue::Object(chipData));
+    sensor_data.insert(chip_name, ReportValue::Object(chip_data));
   }
 
-  return PsistatsReport::new("sensors", ReportValue::Object(sensorData));
+  return ReportValue::Object(sensor_data);
 }

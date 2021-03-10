@@ -4,13 +4,14 @@ use psistats::PluginRegistrar;
 use psistats::PsistatsReport;
 use psistats::PluginError;
 use psistats::FunctionType;
+use psistats::ReportValue;
 
 
 mod cpu;
 
 extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send>) {
-    registrar.register_plugin("cpu", FunctionType::ReporterInit(Box::new(Init)));
-    registrar.register_plugin("cpu", FunctionType::Reporter(Box::new(Reporter)));
+  registrar.register_reporter_init("cpu", Box::new(Init));
+  registrar.register_reporter("cpu", Box::new(Reporter));
 }
 psistats::export_plugin!(register);
 
@@ -29,7 +30,7 @@ impl ReporterInitFunction for Init {
 struct Reporter;
 
 impl ReporterFunction for Reporter {
-    fn call(&self, _: &ReporterConfig) -> Result<PsistatsReport, PluginError> {
+    fn call(&self, _: &ReporterConfig) -> Result<ReportValue, PluginError> {
         // let t = conf.get_config().get("show_total").unwrap().as_bool().unwrap();
 
         return cpu::get_report();

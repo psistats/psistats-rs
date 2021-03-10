@@ -4,13 +4,14 @@ use lazy_static::lazy_static;
 use sysinfo::{ProcessorExt, SystemExt};
 use sysinfo;
 use psistats::plugins::api;
+use psistats::ReportValue;
 use std::thread;
 use psistats::PsistatsReport;
 use psistats::PluginError;
 
 lazy_static! {
     static ref SYS_CHANNEL: (Sender<String>, Receiver<String>) = unbounded();
-    static ref REPORT_CHANNEL: (Sender<PsistatsReport>, Receiver<PsistatsReport>) = unbounded();
+    static ref REPORT_CHANNEL: (Sender<ReportValue>, Receiver<ReportValue>) = unbounded();
 }
 
 pub fn start_mem_thread() {
@@ -26,7 +27,7 @@ pub fn start_mem_thread() {
                     msg.push(api::ReportValue::Integer(sys.get_total_memory()));
                     msg.push(api::ReportValue::Integer(sys.get_free_memory()));
 
-                    let pr = api::PsistatsReport::new("memory", api::ReportValue::Array(msg));
+                    let pr = ReportValue::Array(msg);
                     REPORT_CHANNEL.0.send(pr).unwrap();
                 },
                 Err(_) => ()
@@ -35,7 +36,7 @@ pub fn start_mem_thread() {
     });
 }
 
-pub fn get_report() -> Result<PsistatsReport, PluginError> {
+pub fn get_report() -> Result<ReportValue, PluginError> {
     SYS_CHANNEL.0.send("Foobar!".to_string()).unwrap();
 
     match REPORT_CHANNEL.1.recv() {

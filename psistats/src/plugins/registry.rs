@@ -28,6 +28,22 @@ impl DefaultPluginRegistrar {
 
 impl PluginRegistrar for DefaultPluginRegistrar {
 
+    fn register_reporter_init(&mut self, name: &str, func: Box<dyn ReporterInitFunction + Send>) {
+      self.reporter_init.insert(name.to_string(), func);
+    }
+
+    fn register_reporter(&mut self, name: &str, func: Box<dyn ReporterFunction + Send>) {
+      self.reporter.insert(name.to_string(), func);
+    }
+
+    fn register_publisher_init(&mut self, name: &str, func: Box<dyn PublisherInitFunction + Send>) {
+      self.publisher_init.insert(name.to_string(), func);
+    }
+
+    fn register_publisher(&mut self, name: &str, func: Box<dyn PublisherFunction + Send>) {
+      self.publisher.insert(name.to_string(), func);
+    }
+
     fn register_plugin(&mut self, name: &str, func: FunctionType) {
         match func {
             FunctionType::Publisher(f) => { self.publisher.insert(name.to_string(), f); },
