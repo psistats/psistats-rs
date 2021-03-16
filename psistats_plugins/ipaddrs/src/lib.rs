@@ -1,15 +1,14 @@
 use get_if_addrs::get_if_addrs;
-use psistats::{ ReporterFunction, ReporterConfig, ReportValue };
-use psistats::PluginRegistrar;
-use psistats::PsistatsReport;
-use psistats::PluginError;
-use psistats::FunctionType;
+use libpsistats::{ ReporterFunction, PluginSettings, ReportValue };
+use libpsistats::PluginRegistrar;
+use libpsistats::PsistatsError;
+
 
 #[derive(Debug, Clone, PartialEq)]
 struct Reporter;
 
 impl ReporterFunction for Reporter {
-    fn call(&self, _: &ReporterConfig) -> Result<ReportValue, PluginError> {
+    fn call(&self, _: &PluginSettings) -> Result<ReportValue, PsistatsError> {
         let mut ips = vec![];
 
         for iface in get_if_addrs().unwrap() {
@@ -22,7 +21,7 @@ impl ReporterFunction for Reporter {
     }
 }
 
-extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send>) {
-    registrar.register_plugin("ipaddrs", FunctionType::Reporter(Box::new(Reporter)));
+extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send + Sync>) {
+  registrar.register_reporter_fn("ipaddrs", Box::new(Reporter));
 }
-psistats::export_plugin!(register);
+libpsistats::export_plugin!(register);

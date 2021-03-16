@@ -24,18 +24,8 @@
 # will be used.
 hostname=""
 
-# unused
-workers=2
-
-#unused
-timer=1000
-
-#
-# Global logging settings
-#
-[logging]
-# Set the logging level. Can be error, warning, info, debug, trace
-level="info"
+# Set the logging level. Can be error, warning, info, debug, or trace
+loglevel="info"
 
 #
 # Reporting Plugins
@@ -49,7 +39,7 @@ level="info"
 # config.show_total - If set to false, then an array will be reported
 #                     with usage percent for each core. Otherwise Reports
 #                     total cpu usage.
-[[r_plugin]]
+[[plugin]]
 name="cpu"
 enabled=true
 interval=1
@@ -59,7 +49,7 @@ config.show_total=false
 #
 # Reports the current total memory and total memory usage.
 #
-[[r_plugin]]
+[[plugin]]
 name="memory"
 enabled=true
 interval=5
@@ -68,18 +58,18 @@ interval=5
 #
 # Reports the values of all available sensors. This plugin will do nothing
 # on Windows. On Linux or Unix based systems, libsensors must be installed.
-[[r_plugin]]
+[[plugin]]
 name="sensors"
-enabled=false
-interval=1
+enabled=true
+interval=3
 
 # IP Addresses
 #
 # Reports all IP Addresses available on the system.
-[[r_plugin]]
+[[plugin]]
 name="ipaddrs"
-enabled=false
-interval=0
+enabled=true
+interval=2
 
 #
 # Publishing Plugins
@@ -88,9 +78,9 @@ interval=0
 # Logger
 #
 # Logs all reports to stdout
-[[p_plugin]]
+[[plugin]]
 name="logger"
-enabled=false
+enabled=true
 
 # MQTT Publisher
 #
@@ -103,11 +93,17 @@ enabled=false
 # config.username  - MQTT username (if any)
 # config.password  - MQTT password (if any)
 # config.prefix    - MQTT topic prefix
-[[p_plugin]]
+[[plugin]]
 name="mqttpub"
-enabled=true
+enabled=false
 config.mqtthost="localhost"
 config.mqttport="1883"
 config.username=""
 config.password=""
 config.prefix="psistats"
+
+
+[advanced]
+r_workers=5
+p_workers=5
+min_interval=1000

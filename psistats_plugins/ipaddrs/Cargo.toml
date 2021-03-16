@@ -11,5 +11,5 @@ crate-type = ["cdylib"]
 name = "plugin_ipaddrs"
 
 [dependencies]
-psistats = { path = "../../psistats" }
+libpsistats = { path = "../../libpsistats" }
 get_if_addrs = "0.5.3"

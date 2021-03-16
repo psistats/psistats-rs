@@ -2,7 +2,7 @@
 use sensors::Sensors;
 
 use lazy_static::lazy_static;
-use psistats::ReportValue;
+use libpsistats::ReportValue;
 use std::collections::HashMap;
 
 #[cfg(target_os = "windows")]

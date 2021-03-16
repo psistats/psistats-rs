@@ -1,27 +1,24 @@
-#[macro_use]
-use psistats::{ ReporterFunction, ReporterInitFunction, ReporterConfig };
-use psistats::PluginRegistrar;
-use psistats::PluginError;
-use psistats::FunctionType;
-use psistats::ReportValue;
+use libpsistats::{ ReporterFunction, InitFunction, PluginSettings };
+use libpsistats::PluginRegistrar;
+use libpsistats::PsistatsError;
+use libpsistats::ReportValue;
 
 mod sensors;
 
 
 
-extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send>) {
-    registrar.register_plugin("sensors", FunctionType::ReporterInit(Box::new(Init)));
-    registrar.register_plugin("sensors", FunctionType::Reporter(Box::new(Reporter)));
+extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send + Sync>) {
+  registrar.register_init_fn("sensors", Box::new(Init));
+  registrar.register_reporter_fn("sensors", Box::new(Reporter));
 }
-psistats::export_plugin!(register);
+libpsistats::export_plugin!(register);
 
 
 #[derive(Debug, Clone, PartialEq)]
 struct Init;
 
-impl ReporterInitFunction for Init {
-    fn call(&self, _: &ReporterConfig) -> Result<(), PluginError> {
-        //memory::start_mem_thread();
+impl InitFunction for Init {
+    fn call(&self, _: &str, _: &PluginSettings) -> Result<(), PsistatsError> {
         Ok(())
     }
 }
@@ -30,9 +27,7 @@ impl ReporterInitFunction for Init {
 struct Reporter;
 
 impl ReporterFunction for Reporter {
-    fn call(&self, _: &ReporterConfig) -> Result<ReportValue, PluginError> {
-        //return memory::get_report();
+    fn call(&self, _: &PluginSettings) -> Result<ReportValue, PsistatsError> {
         Ok(sensors::get_report())
-        // Ok(PsistatsReport::new("sensors", ReportValue::String("hot".to_string())))
     }
 }

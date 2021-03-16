@@ -11,7 +11,7 @@ crate-type = ["cdylib"]
 name = "plugin_mqttpub"
 
 [dependencies]
-psistats = { path = "../../psistats" }
+libpsistats = { path = "../../libpsistats" }
 crossbeam-channel = "0.5.0"
 lazy_static = "1.4.0"
 rumqttc = "0.5.0"

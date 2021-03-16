@@ -1,13 +1,11 @@
 use crossbeam_channel::unbounded;
 use crossbeam_channel::{Receiver, Sender};
 use lazy_static::lazy_static;
-use sysinfo::{ProcessorExt, SystemExt};
+use sysinfo::{SystemExt};
 use sysinfo;
-use psistats::plugins::api;
-use psistats::ReportValue;
+use libpsistats::ReportValue;
 use std::thread;
-use psistats::PsistatsReport;
-use psistats::PluginError;
+use libpsistats::PsistatsError;
 
 lazy_static! {
     static ref SYS_CHANNEL: (Sender<String>, Receiver<String>) = unbounded();
@@ -23,9 +21,9 @@ pub fn start_mem_thread() {
             match SYS_CHANNEL.1.recv() {
                 Ok(_) => {
                     sys.refresh_memory();
-                    let mut msg: Vec<api::ReportValue> = Vec::new();
-                    msg.push(api::ReportValue::Integer(sys.get_total_memory()));
-                    msg.push(api::ReportValue::Integer(sys.get_free_memory()));
+                    let mut msg: Vec<ReportValue> = Vec::new();
+                    msg.push(ReportValue::Integer(sys.get_total_memory()));
+                    msg.push(ReportValue::Integer(sys.get_free_memory()));
 
                     let pr = ReportValue::Array(msg);
                     REPORT_CHANNEL.0.send(pr).unwrap();
@@ -36,7 +34,7 @@ pub fn start_mem_thread() {
     });
 }
 
-pub fn get_report() -> Result<ReportValue, PluginError> {
+pub fn get_report() -> Result<ReportValue, PsistatsError> {
     SYS_CHANNEL.0.send("Foobar!".to_string()).unwrap();
 
     match REPORT_CHANNEL.1.recv() {
@@ -45,7 +43,7 @@ pub fn get_report() -> Result<ReportValue, PluginError> {
         },
         Err(_) => {
             return Err(
-                PluginError::Runtime { p: "memory".to_string(), msg: "Error getting report!".to_string() }
+                PsistatsError::Runtime("Memory plugin unable to get report".to_string())
             );
         }
     };

@@ -1,5 +1,6 @@
 [workspace]
 members = [
+  "libpsistats",
     "psistats",
     "psistats_plugins/cpu",
     "psistats_plugins/logger",
@@ -21,7 +22,7 @@ incremental = true
 overflow-checks = true
 
 [profile.release]
-opt-level = 0
+opt-level = 3
 debug = false
 rpath = false
 lto = true
