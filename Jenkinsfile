@@ -43,6 +43,15 @@ pipeline {
   }
 
   stages {
+    stage('Preface') {
+      steps {
+        githubNotify context: 'ci/jenkins',
+                      credentialsId: 'psikon-ci-github-usertoken',
+                      description: 'Building x86_64 binaries',
+                      status: 'PENDING',
+                      targetUrl: 'https://dev.psikon.org/jenkins'
+      }
+    }
     stage('Build') {
       parallel {
 
@@ -62,16 +71,41 @@ pipeline {
                              status: 'PENDING',
                              targetUrl: 'https://dev.psikon.org/jenkins'
                 sh 'build/linux/build.sh x86_64-unknown-linux-gnu'
+                githubNotify context: 'ci/jenkins/x86_64',
+                             credentialsId: 'psikon-ci-github-usertoken',
+                             description: 'Building x86_64 binaries',
+                             status: 'SUCCESS',
+                             targetUrl: 'https://dev.psikon.org/jenkins'
               }
             }
             stage('Build ArmV7') {
               steps {
+                githubNotify context: 'ci/jenkins/armv7',
+                             credentialsId: 'psikon-ci-github-usertoken',
+                             description: 'Building x86_64 binaries',
+                             status: 'PENDING',
+                             targetUrl: 'https://dev.psikon.org/jenkins'
                 sh 'build/linux/build.sh armv7-unknown-linux-gnueabihf'
+                githubNotify context: 'ci/jenkins/armv7',
+                             credentialsId: 'psikon-ci-github-usertoken',
+                             description: 'Building x86_64 binaries',
+                             status: 'SUCCESS',
+                             targetUrl: 'https://dev.psikon.org/jenkins'
               }
             }
             stage('Build Arm64') {
               steps {
+                githubNotify context: 'ci/jenkins/arm64',
+                             credentialsId: 'psikon-ci-github-usertoken',
+                             description: 'Building x86_64 binaries',
+                             status: 'PENDING',
+                             targetUrl: 'https://dev.psikon.org/jenkins'
                 sh 'build/linux/build.sh aarch64-unknown-linux-gnu'
+                githubNotify context: 'ci/jenkins/x86_64',
+                             credentialsId: 'psikon-ci-github-usertoken',
+                             description: 'Building x86_64 binaries',
+                             status: 'SUCCESS',
+                             targetUrl: 'https://dev.psikon.org/jenkins'
               }
             }
           }
@@ -81,6 +115,11 @@ pipeline {
           stages {
             stage('Build Windows') {
               steps {
+                githubNotify context: 'ci/jenkins/windows',
+                             credentialsId: 'psikon-ci-github-usertoken',
+                             description: 'Building x86_64 binaries',
+                             status: 'PENDING',
+                             targetUrl: 'https://dev.psikon.org/jenkins'
                 withCredentials([string(credentialsId: 'appveyor-token', variable: 'TOKEN')]) {
                   appveyorBuild(
                     accountToken: TOKEN,
@@ -104,6 +143,11 @@ pipeline {
                     targetDir: 'target/release/artifacts'
                   )
                 }
+                githubNotify context: 'ci/jenkins/windows',
+                             credentialsId: 'psikon-ci-github-usertoken',
+                             description: 'Building x86_64 binaries',
+                             status: 'SUCCESS',
+                             targetUrl: 'https://dev.psikon.org/jenkins'
               }
             }
           }
@@ -131,12 +175,20 @@ pipeline {
   }
   post {
     success {
-      updateGithubCommitStatus(currentBuild)
+      githubNotify context: 'ci/jenkins',
+                    credentialsId: 'psikon-ci-github-usertoken',
+                    description: 'Building x86_64 binaries',
+                    status: 'SUCCESS',
+                    targetUrl: 'https://dev.psikon.org/jenkins'
       psikonMailer(currentBuild, env)
     }
 
     failure {
-      updateGithubCommitStatus currentBuild
+      githubNotify context: 'ci/jenkins',
+                    credentialsId: 'psikon-ci-github-usertoken',
+                    description: 'Building x86_64 binaries',
+                    status: 'FAILURE',
+                    targetUrl: 'https://dev.psikon.org/jenkins'
       psikonMailer(currentBuild, env)
     }
   }
