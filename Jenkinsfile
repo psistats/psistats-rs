@@ -101,7 +101,7 @@ pipeline {
                              status: 'PENDING',
                              targetUrl: 'https://dev.psikon.org/jenkins'
                 sh 'build/linux/build.sh aarch64-unknown-linux-gnu'
-                githubNotify context: 'ci/jenkins/x86_64',
+                githubNotify context: 'ci/jenkins/arm64',
                              credentialsId: 'psikon-ci-github-usertoken',
                              description: '64bit arm linux binaries built',
                              status: 'SUCCESS',
