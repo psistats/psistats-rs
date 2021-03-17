@@ -61,7 +61,7 @@ interval=5
 [[plugin]]
 name="sensors"
 enabled=true
-interval=3
+interval=5
 
 # IP Addresses
 #
@@ -69,7 +69,7 @@ interval=3
 [[plugin]]
 name="ipaddrs"
 enabled=true
-interval=2
+interval=0
 
 #
 # Publishing Plugins
