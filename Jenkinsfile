@@ -168,7 +168,7 @@ pipeline {
     stage('Deploy') {
       when { branch "master" }
       steps {
-        sh 'build/linux/deploy-debian.sh master'
+        sh 'build/linux/deploy-debian.sh main'
       }
     }
 
