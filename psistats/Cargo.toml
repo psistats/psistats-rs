@@ -1,13 +1,13 @@
 [package]
 name = "psistats"
-version = "0.2.0-alpha"
+version = "0.2.0-beta"
 license = "MIT"
 authors = ["Alex Dow <adow@psikon.com>"]
 edition = "2018"
 publish = false
 include = ["../psistats.toml", "../psistats-service.exe", "../psistats-service.xml"]
 description = "Psistats system metrics reporting tool"
-homepage = "https://www.psikon.org"
+homepage = "https://github.com/psistats/psistats-rs"
 repository = "https://github.com/psistats/psistats-rs"
 readme = "README.md"
 
