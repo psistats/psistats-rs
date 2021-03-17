@@ -10,9 +10,30 @@ It is built upon a plugin architecture to make it easier to add more functionali
 
 ### Debian-based OSes
 
+First install the necessary key:
 ```
 $ curl -sS https://dev.psikon.org/pubkey.gpg | sudo apt-key add -
+```
+
+Then you can choose "testing" or "main" debian repos. "testing" will be synced with the "develop" branch on git. "main" will be synced with the "master" branch on git.
+
+For stable releases:
+
+```
+$ echo "deb https://debrepo.psikon.org/ psikon-main main" | sudo tee /etc/apt/sources.list.d/yarn.list
+```
+
+For develop releases:
+
+```
 $ echo "deb https://debrepo.psikon.org/ psikon-testing testing" | sudo tee /etc/apt/sources.list.d/yarn.list
+```
+
+Then install:
+
+```
+$ apt-get update
+$ apt-get install psistats
 ```
 
 You can then configure psistats by editing `/etc/psistats.conf`.
