@@ -60,9 +60,8 @@ pipeline {
                             context: 'ci/jenkins/x86_64',
                             credentialsId: 'psikon-ci-github-usertoken',
                             description: 'Building x86_64 binaries',
-                            repo: getRepoURL(), sha: getCommitSha(),
                             status: 'PENDING',
-                            targetUrl: 'https://dev.psikon.org/jenkinks'
+                            targetUrl: 'https://dev.psikon.org/jenkins'
                 sh 'build/linux/build.sh x86_64-unknown-linux-gnu'
               }
             }
