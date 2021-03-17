@@ -10,64 +10,51 @@
 //!
 //! For a plugin to be loaded, it'll need to be part of psistats' configuration.
 //!
-//! An example plugin that simply reports a counter, and publishes by just
-//! printing the received report to stdout.
+//! An example plugin that simply reports a counter:
 //! ```
 //! #[macro_use]
 //! extern crate lazy_static;
 //!
 //! use libpsistats::PluginRegistrar;
-//! use libpsistats::FunctionType;
-//! use libpsistats::PluginError;
-//! use libpsistats::{ ReporterFunction, PublisherFunction, PluginSettings, ReportValue };
+//! use libpsistats::PsistatsError;
+//! use libpsistats::{ ReporterFunction, PluginSettings, ReportValue };
 //! use std::sync::Mutex;
 //!
-//! // Create some static state for our plugin
+//! // Step 1: Create a state struct for the plugin.
 //! struct CounterState {
 //!   pub counter: u64
 //! }
 //!
 //! impl CounterState {
-//!  pub fn new() -> Self {
-//!    CounterState { counter: 0 }
-//!  }
-//!
-//!  pub fn inc(&mut self) {
-//!    self.counter = self.counter + 1;
-//!  }
+//!   pub fn new() -> Self {
+//!     CounterState { counter: 0 }
+//!   }
 //! }
 //!
+//! // Step 2: Expose it as a static reference inside a Mutex for thread safety.
 //! lazy_static! {
-//!  static ref COUNTER: Mutex<CounterState> = Mutex::new(CounterState::new());
+//!   static ref STATE: Mutex<CounterState> = Mutex::new(CounterState::new());
 //! }
 //!
-//! // define the reporter
 //!
+//! // Step 3: Setup the reporter callback
 //! #[derive(Debug, Clone, PartialEq)]
 //! struct CounterReporter;
-//!
 //! impl ReporterFunction for CounterReporter {
 //!   fn call(&self, _: &PluginSettings) -> Result<ReportValue, PsistatsError> {
-//!     let mut counter = COUNTER.lock().unwrap();
-//!     counter.inc();
+//!     let mut state = STATE.lock().unwrap();
+//!     state.counter = state.counter + 1;
 //!
-//!     Ok(ReportValue::Integer(counter.counter))
+//!     Ok(ReportValue::Integer(state.counter))
 //!   }
 //! }
 //!
-//! struct SimplePublisher;
-//! impl PublisherFunction for SimplePublisher {
-//!   fn call(&self, report: &PsistatsReport, _: &PluginSettings) -> Result<(), PsistatsError> {
-//!     println!("{}", report.as_json());
-//!   }
+//! // Step 4: Setup the plugin entry point
+//! extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send + Sync>) {
+//!   registrar.register_reporter_fn("counter", Box::new(CounterReporter));
 //! }
-//!
-//! extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send>) {
-//!   registrar.register_reporter_fn("example", Box::new(CounterReporter));
-//!   registrar.register_publisher_fn("example", Box::new(SimplePublisher));
-//! }
-//!
 //! libpsistats::export_plugin!(register);
+//!
 //! ```
 //!
 //! Plugins should be built with the crate type `cdylib`. The library name should be prefixed with `plugin_`.
@@ -75,17 +62,27 @@
 //! ```
 //! # Cargo.toml
 //! [package]
-//! name = "example_plugin"
+//! name = "example_counter_plugin"
 //! version = "0.0.1"
 //! edition = "2018"
 //!
 //! [lib]
 //! crate-type = ["cdylib"]
-//! name = "plugin_example"
+//! name = "plugin_counter"
 //!
 //! [dependencies]
 //! libpsistats = { git = "https://github.com/psistats/psistats-rs" }
 //! lazy_static = "1.4"
+//! ```
+//!
+//! It can then be added to the psistats configuration;
+//!
+//! ```
+//! # psistats.toml
+//! [[plugin]]
+//! name="counter"
+//! enabled=true
+//! interval=1
 //! ```
 mod plugin_traits;
 mod reports;
@@ -116,5 +113,5 @@ pub use loader::PluginLoader;
 /// This is low level, and you should typically use the [`export_plugin`] macro instead.
 #[derive(Copy, Clone)]
 pub struct PsistatsPlugin {
-    pub register: unsafe extern "C" fn(&mut Box<dyn PluginRegistrar + 'static + Send + Sync>)
+  pub register: unsafe extern "C" fn(&mut Box<dyn PluginRegistrar + 'static + Send + Sync>)
 }
