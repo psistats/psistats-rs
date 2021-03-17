@@ -60,7 +60,7 @@ interval=5
 # on Windows. On Linux or Unix based systems, libsensors must be installed.
 [[plugin]]
 name="sensors"
-enabled=true
+enabled=false
 interval=5
 
 # IP Addresses
