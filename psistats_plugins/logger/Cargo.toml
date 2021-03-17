@@ -1,6 +1,6 @@
 [package]
 name = "psistats_plugin_logger"
-version = "0.2.0-alpha"
+version = "0.2.0-beta"
 authors = ["Alex Dow <adow@psikon.com>"]
 edition = "2018"
 
@@ -11,7 +11,7 @@ crate-type = ["cdylib"]
 name = "plugin_logger"
 
 [dependencies]
-psistats = { path = "../../psistats" }
+libpsistats = { path = "../../libpsistats" }
 log = "0.4.14"
 pretty_env_logger = "0.4.0"
 

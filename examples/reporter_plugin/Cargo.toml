@@ -1,6 +1,6 @@
 [package]
-name = "psistats_plugin_ipaddrs"
-version = "0.2.0-beta"
+name = "example-psistats-reporter"
+version = "0.2.0-alpha"
 authors = ["Alex Dow <adow@psikon.com>"]
 edition = "2018"
 
@@ -8,8 +8,9 @@ edition = "2018"
 
 [lib]
 crate-type = ["cdylib"]
-name = "plugin_ipaddrs"
+name = "plugin_example"
 
 [dependencies]
-libpsistats = { path = "../../libpsistats" }
-get_if_addrs = "0.5.3"
+psistats = { path = "../../psistats" }
+
+[workspace]
