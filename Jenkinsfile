@@ -109,12 +109,19 @@ pipeline {
         archiveArtifacts artifacts: 'target/release/artifacts/**/*', onlyIfSuccessful: true
       }
     }
-    stage('Deploy') {
-      when { branch "master" }
+    stage('Deploy BETA') {
+      when { branch "develop" }
       steps {
         sh 'build/linux/deploy-debian.sh testing'
       }
     }
+    stage('Deploy') {
+      when { branch "master" }
+      steps {
+        sh 'build/linux/deploy-debian.sh master'
+      }
+    }
+
   }
   post {
     success {
