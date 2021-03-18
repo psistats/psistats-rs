@@ -100,7 +100,7 @@ pub fn main(conf_file: &str, plugin_dir: &str) {
 
   loop {
     for (interval, plugins) in &reporter_intervals {
-      if now.elapsed().as_secs() % interval == 0 {
+      if interval > &0 && now.elapsed().as_secs() % interval == 0 {
         report_pool.scoped(|scoped| {
 
           for pluginname in plugins {
