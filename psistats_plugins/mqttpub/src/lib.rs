@@ -5,9 +5,11 @@ use libpsistats::PsistatsError;
 use std::thread;
 use crossbeam_channel::unbounded;
 use crossbeam_channel::{Receiver, Sender};
-use rumqttc::{MqttOptions, Client, QoS };
+use rumqttc::{MqttOptions, Client, QoS, Transport };
 use lazy_static::lazy_static;
 use std::collections::HashMap;
+use rustls::ClientConfig;
+use rustls_native_certs;
 
 
 
@@ -35,11 +37,21 @@ impl MqttWrapper {
       let username = conf.get("username").unwrap().as_str().unwrap();
       let password = conf.get("password").unwrap().as_str().unwrap();
       let client_id = format!("{}-{}", prefix, hostname);
+      let usetls   = conf.get("usetls").unwrap().as_bool().unwrap();
 
       let mut mqttopts = MqttOptions::new(client_id, mqtthost, mqttport.parse::<u16>().unwrap());
 
       mqttopts.set_keep_alive(5);
       mqttopts.set_credentials(username, password);
+
+      if (usetls) {
+        let mut client_config = ClientConfig::new();
+        client_config.root_store =
+          rustls_native_certs::load_native_certs().expect("Failed to load platform certificates");
+
+          mqttopts.set_transport(Transport::tls_with_config(client_config.into()));
+
+      }
       return Ok(mqttopts);
     };
 
@@ -48,7 +60,7 @@ impl MqttWrapper {
     let topic = format!("{}/{}", prefix, hostname);
 
     thread::spawn(move || loop {
-      for _notification in connection.iter() {
+      for notification in connection.iter().enumerate() {
 
       }
     });
@@ -81,14 +93,16 @@ lazy_static! {
 }
 
 pub fn start_mqtt_thread(hostname: &str, settings: &PluginSettings) {
-  let conf = settings.get_config();
-  //let hostname = conf.get("hostname").unwrap().as_str().unwrap();
+  let conf = settings.get_config().clone();
 
-  let mut wrapper = MqttWrapper::init(&hostname, conf).unwrap();
+  let hn = String::from(hostname);
 
-  thread::spawn(move || loop {
-    let report = REPORT_CHANNEL.1.recv().unwrap();
-    wrapper.send(&report).unwrap();
+  thread::spawn(move || {
+    let mut wrapper = MqttWrapper::init(&hn, &conf).unwrap();
+    loop {
+      let report = REPORT_CHANNEL.1.recv().unwrap();
+      wrapper.send(&report).unwrap();
+    }
   });
 }
 
@@ -98,7 +112,6 @@ struct Init;
 impl InitFunction for Init {
     fn call(&self, hostname: &str, settings: &PluginSettings) -> Result<(), PsistatsError> {
       start_mqtt_thread(hostname, settings);
-
       Ok(())
     }
 }
