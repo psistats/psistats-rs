@@ -1,4 +1,4 @@
-[![Build Status](https://dev.psikon.org/jenkins/buildStatus/icon?job=psistats%2Fpsistats-rs%2Fmaster)](https://dev.psikon.org/jenkins/job/psistats/job/psistats-rs/job/master)
+[![Build Status](https://dev.psikon.org/jenkins/buildStatus/icon?job=psistats%2Fpsistats-rs%2Fdevelop)](https://dev.psikon.org/jenkins/job/psistats/job/psistats-rs/job/develop)
 
 # psistats
 

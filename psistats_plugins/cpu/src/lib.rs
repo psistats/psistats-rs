@@ -19,9 +19,14 @@ export_plugin!(register);
 struct Init;
 
 impl InitFunction for Init {
-    fn call(&self, _: &str, _: &PluginSettings) -> Result<(), PsistatsError> {
-        cpu::start_cpu_thread();
-        Ok(())
+    fn call(&self, _: &str, settings: &PluginSettings) -> Result<(), PsistatsError> {
+      let mut combined = false;
+      if settings.get_config().contains_key("combined") {
+        combined = settings.get_config().get("combined").unwrap().as_bool().unwrap();
+      }
+
+      cpu::start_cpu_thread(combined);
+      Ok(())
     }
 }
 
