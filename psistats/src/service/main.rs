@@ -66,7 +66,8 @@ pub fn main(conf_file: &str, plugin_dir: &str) {
   for (plugin_name, initfn) in init_fns.iter() {
     let plugin_conf = conf.get_plugin_config(plugin_name).unwrap();
     debug!("Calling init fn for {}", plugin_name);
-    initfn.call(&conf.settings.hostname, plugin_conf).unwrap();
+
+    initfn.call(&hostname, plugin_conf).unwrap();
   }
 
   let reporter_fns = registrar.get_reporter_fns();
