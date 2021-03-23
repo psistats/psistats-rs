@@ -80,7 +80,8 @@ interval=0
 # Logs all reports to stdout
 [[plugin]]
 name="logger"
-enabled=true
+enabled=false
+
 
 # MQTT Publisher
 #
@@ -90,14 +91,16 @@ enabled=true
 # Configuration
 # config.mqtthost  - Host or IP address of the MQTT server.
 # config.mqttport  - Port number of the MQTT server
+# config.usetls    - Set to true to use TLS
 # config.username  - MQTT username (if any)
 # config.password  - MQTT password (if any)
 # config.prefix    - MQTT topic prefix
 [[plugin]]
 name="mqttpub"
-enabled=false
+enabled=true
 config.mqtthost="localhost"
 config.mqttport="1883"
+config.usetls=false
 config.username=""
 config.password=""
 config.prefix="psistats"
