@@ -1,9 +1,7 @@
-use psistats::{ PublisherFunction, PublisherInitFunction, PublisherConfig };
-use psistats::PluginRegistrar;
-use psistats::PsistatsReport;
-use psistats::PluginError;
-use psistats::FunctionType;
-use psistats::PsistatsSettings;
+use libpsistats::{ PublisherFunction, InitFunction, PluginSettings };
+use libpsistats::PluginRegistrar;
+use libpsistats::PsistatsReport;
+use libpsistats::PsistatsError;
 use std::thread;
 use crossbeam_channel::unbounded;
 use crossbeam_channel::{Receiver, Sender};
@@ -13,11 +11,11 @@ use std::collections::HashMap;
 
 
 
-extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send>) {
-  registrar.register_plugin("mqttpub", FunctionType::PublisherInit(Box::new(Init)));
-  registrar.register_plugin("mqttpub", FunctionType::Publisher(Box::new(Publisher)));
+extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send + Sync>) {
+  registrar.register_init_fn("mqttpub", Box::new(Init));
+  registrar.register_publisher_fn("mqttpub", Box::new(Publisher));
 }
-psistats::export_plugin!(register);
+libpsistats::export_plugin!(register);
 
 pub struct MqttWrapper {
   client: Client,
@@ -27,7 +25,7 @@ pub struct MqttWrapper {
 
 impl MqttWrapper {
 
-  pub fn init(hostname: &str, conf: &HashMap<String, toml::Value>) -> Result<Self, PluginError> {
+  pub fn init(hostname: &str, conf: &HashMap<String, toml::Value>) -> Result<Self, PsistatsError> {
     let prefix = conf.get("prefix").unwrap().as_str().unwrap();
 
     let mqttopts = || -> Result<MqttOptions, ()> {
@@ -82,8 +80,11 @@ lazy_static! {
   pub static ref REPORT_CHANNEL: (Sender<PsistatsReport>, Receiver<PsistatsReport>) = unbounded();
 }
 
-pub fn start_mqtt_thread(conf: &PublisherConfig, settings: &PsistatsSettings) {
-  let mut wrapper = MqttWrapper::init(&settings.hostname, conf.get_config()).unwrap();
+pub fn start_mqtt_thread(hostname: &str, settings: &PluginSettings) {
+  let conf = settings.get_config();
+  //let hostname = conf.get("hostname").unwrap().as_str().unwrap();
+
+  let mut wrapper = MqttWrapper::init(&hostname, conf).unwrap();
 
   thread::spawn(move || loop {
     let report = REPORT_CHANNEL.1.recv().unwrap();
@@ -94,9 +95,9 @@ pub fn start_mqtt_thread(conf: &PublisherConfig, settings: &PsistatsSettings) {
 #[derive(Debug, Clone, PartialEq)]
 struct Init;
 
-impl PublisherInitFunction for Init {
-    fn call(&self, conf: &PublisherConfig, settings: &PsistatsSettings) -> Result<(), PluginError> {
-      start_mqtt_thread(conf, settings);
+impl InitFunction for Init {
+    fn call(&self, hostname: &str, settings: &PluginSettings) -> Result<(), PsistatsError> {
+      start_mqtt_thread(hostname, settings);
 
       Ok(())
     }
@@ -107,11 +108,13 @@ impl PublisherInitFunction for Init {
 struct Publisher;
 
 impl PublisherFunction for Publisher {
-    fn call(&self, report: PsistatsReport, _: &PublisherConfig, _: &PsistatsSettings) -> Result<(), PluginError> {
+    fn call(&self, report: PsistatsReport, _: &PluginSettings) -> Result<(), PsistatsError> {
       match REPORT_CHANNEL.0.send(report) {
         Ok(_) => (),
         Err(e) => {
-          println!("report channel error: {:?}", e);
+          return Err(
+            PsistatsError::Runtime(format!("Failed to send report to crossbeam channel: {:?}", e))
+          );
         }
       }
       Ok(())

@@ -1,6 +1,6 @@
 [package]
 name = "psistats_plugin_memory"
-version = "0.2.0-alpha"
+version = "0.2.0-beta"
 authors = ["Alex Dow <adow@psikon.com>"]
 edition = "2018"
 
@@ -11,7 +11,8 @@ crate-type = ["cdylib"]
 name = "plugin_memory"
 
 [dependencies]
-psistats = { path = "../../psistats" }
-crossbeam-channel = "0.4.2"
+libpsistats = { path = "../../libpsistats" }
+crossbeam-channel = "0.5.0"
 lazy_static = "1.4.0"
-sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo" }
+#sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo" }
+sysinfo = "0.16.4"

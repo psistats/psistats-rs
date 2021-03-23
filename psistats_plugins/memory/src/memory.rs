@@ -1,16 +1,15 @@
 use crossbeam_channel::unbounded;
 use crossbeam_channel::{Receiver, Sender};
 use lazy_static::lazy_static;
-use sysinfo::{ProcessorExt, SystemExt};
+use sysinfo::{SystemExt};
 use sysinfo;
-use psistats::plugins::api;
+use libpsistats::ReportValue;
 use std::thread;
-use psistats::PsistatsReport;
-use psistats::PluginError;
+use libpsistats::PsistatsError;
 
 lazy_static! {
     static ref SYS_CHANNEL: (Sender<String>, Receiver<String>) = unbounded();
-    static ref REPORT_CHANNEL: (Sender<PsistatsReport>, Receiver<PsistatsReport>) = unbounded();
+    static ref REPORT_CHANNEL: (Sender<ReportValue>, Receiver<ReportValue>) = unbounded();
 }
 
 pub fn start_mem_thread() {
@@ -22,11 +21,11 @@ pub fn start_mem_thread() {
             match SYS_CHANNEL.1.recv() {
                 Ok(_) => {
                     sys.refresh_memory();
-                    let mut msg: Vec<api::ReportValue> = Vec::new();
-                    msg.push(api::ReportValue::Integer(sys.get_total_memory()));
-                    msg.push(api::ReportValue::Integer(sys.get_free_memory()));
+                    let mut msg: Vec<ReportValue> = Vec::new();
+                    msg.push(ReportValue::Integer(sys.get_total_memory()));
+                    msg.push(ReportValue::Integer(sys.get_free_memory()));
 
-                    let pr = api::PsistatsReport::new("memory", api::ReportValue::Array(msg));
+                    let pr = ReportValue::Array(msg);
                     REPORT_CHANNEL.0.send(pr).unwrap();
                 },
                 Err(_) => ()
@@ -35,7 +34,7 @@ pub fn start_mem_thread() {
     });
 }
 
-pub fn get_report() -> Result<PsistatsReport, PluginError> {
+pub fn get_report() -> Result<ReportValue, PsistatsError> {
     SYS_CHANNEL.0.send("Foobar!".to_string()).unwrap();
 
     match REPORT_CHANNEL.1.recv() {
@@ -44,7 +43,7 @@ pub fn get_report() -> Result<PsistatsReport, PluginError> {
         },
         Err(_) => {
             return Err(
-                PluginError::Runtime { p: "memory".to_string(), msg: "Error getting report!".to_string() }
+                PsistatsError::Runtime("Memory plugin unable to get report".to_string())
             );
         }
     };

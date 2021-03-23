@@ -1,6 +1,6 @@
 [package]
 name = "psistats_plugin_sensors"
-version = "0.2.0-alpha"
+version = "0.2.0-beta"
 authors = ["Alex Dow <adow@psikon.com>"]
 edition = "2018"
 
@@ -11,8 +11,7 @@ crate-type = ["cdylib"]
 name = "plugin_sensors"
 
 [dependencies]
-psistats = { path = "../../psistats" }
-crossbeam-channel = "0.4.2"
+libpsistats = { path = "../../libpsistats" }
 lazy_static = "1.4.0"
 
 [target.'cfg(not(target_os = "windows"))'.dependencies]
