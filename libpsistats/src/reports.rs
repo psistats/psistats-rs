@@ -11,6 +11,7 @@ use std::collections::HashMap;
 /// [PsistatsReport](libpsistats::PsistatsReport) and will include some additional
 /// metadata such as the plugin name, and hostname.
 #[derive(Deserialize, Serialize, Clone, Debug)]
+#[serde(untagged)]
 pub enum ReportValue {
     Integer(u64),
     Float(f64),
