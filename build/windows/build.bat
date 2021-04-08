@@ -16,7 +16,8 @@ popd
 echo Project path: %PROJECT_PATH%
 
 cd "%PROJECT_PATH%"
-cargo install cargo-wix
+cargo clean
+cargo install cargo-wix cargo-config
 cargo build --release
 mkdir "%PROJECT_PATH%\target\release\unzipped"
 mkdir "%PROJECT_PATH%\target\release\unzipped\plugins"
