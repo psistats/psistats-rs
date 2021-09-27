@@ -2,6 +2,7 @@ use libpsistats::PluginRegistrar;
 use libpsistats::PluginLoader;
 use libpsistats::DefaultPluginRegistrar;
 use libpsistats::PsistatsReport;
+use libpsistats::Commands;
 use clap::{App, Arg};
 use std::alloc::System;
 use crate::service::config::PsistatsConfiguration;
@@ -18,28 +19,9 @@ use std::collections::HashMap;
 static ALLOCATOR: System = System;
 
 pub fn main(conf_file: &str, plugin_dir: &str) {
-  let mut registrar: Box<dyn PluginRegistrar + Send + Sync> = Box::new(DefaultPluginRegistrar::new());
 
-  let pl: PluginLoader = PluginLoader::new(plugin_dir.to_string());
-  let conf: PsistatsConfiguration;
-
-  let conf_content = std::fs::read_to_string(conf_file).unwrap();
-
-  match toml::from_str::<PsistatsConfiguration>(&conf_content) {
-    Ok(c) => conf = c,
-    Err(e) => {
-      println!("{}", e);
-      std::process::exit(1);
-    }
-  }
-
-  let hostname: String;
-
-  if conf.settings.hostname == "" {
-    hostname = gethostname::gethostname().into_string().unwrap().to_lowercase();
-  } else {
-    hostname = conf.settings.hostname.to_string();
-  }
+  let conf = load_configuration(conf_file);
+  let hostname = get_hostname(&conf);
 
   env::set_var("RUST_LOG", &conf.settings.loglevel);
   pretty_env_logger::init();
@@ -47,27 +29,18 @@ pub fn main(conf_file: &str, plugin_dir: &str) {
   info!("=[ PSISTATS ]=");
   info!("Hostname: {}", hostname);
 
-  unsafe {
-    for plugin_conf in conf.plugin.iter().filter(|c| c.is_enabled()) {
-      let plugin_name = &plugin_conf.name;
+  debug!("Creating command channel");
 
-      match pl.load_plugin(plugin_name, &mut registrar) {
-        Ok(()) => {
-          info!("Plugin {} loaded", plugin_name);
-        },
-        Err(err) => {
-          error!("Failed to load plugin {}: {}", plugin_name, err);
-        }
-      }
-    }
-  }
+  let (cmd_tx, cmd_rx) = mpsc::channel::<Commands>();
+
+  info!("Initializing plugins");
+  let registrar = init_plugin_registrar(&conf, plugin_dir);
 
   let init_fns = registrar.get_init_fns();
   for (plugin_name, initfn) in init_fns.iter() {
     let plugin_conf = conf.get_plugin_config(plugin_name).unwrap();
     debug!("Calling init fn for {}", plugin_name);
-
-    initfn.call(&hostname, plugin_conf).unwrap();
+    initfn.call(&hostname, plugin_conf, cmd_tx.clone()).unwrap();
   }
 
   let reporter_fns = registrar.get_reporter_fns();
@@ -77,7 +50,6 @@ pub fn main(conf_file: &str, plugin_dir: &str) {
   let now = Instant::now();
 
   let max_counter = reporter_intervals.keys().max();
-
 
   for (pluginname, _) in reporter_fns {
     let pconf = conf.get_plugin_config(pluginname).unwrap();
@@ -100,6 +72,26 @@ pub fn main(conf_file: &str, plugin_dir: &str) {
   let mut pub_pool = Pool::new(p_workers);
 
   loop {
+
+    let cmd = cmd_rx.try_recv();
+    match cmd {
+      Ok(c) => {
+        info!("{}", format!("Received command {:?}", c));
+        match c {
+          Commands::Report(r) => {
+            let reporter_conf = conf.get_plugin_config(&r).unwrap().clone();
+            let reporterfn = registrar.get_reporter_fn(&r).unwrap();
+            let report_value = reporterfn.call(&reporter_conf).unwrap();
+
+            let report = PsistatsReport::new(&r, &hostname, report_value);
+            tx.send(report).unwrap();
+          }
+        }
+
+      },
+      _ => ()
+    }
+
     for (interval, plugins) in &reporter_intervals {
       if interval > &0 && now.elapsed().as_secs() % interval == 0 {
         report_pool.scoped(|scoped| {
@@ -144,6 +136,7 @@ pub fn main(conf_file: &str, plugin_dir: &str) {
 
     thread::sleep(Duration::from_millis(min_interval));
   }
+
 
   /*
   loop {
@@ -304,6 +297,59 @@ pub fn main(conf_file: &str, plugin_dir: &str) {
   */
 */
 */
+}
+
+fn get_hostname(conf: &PsistatsConfiguration) -> String {
+  let hostname: String;
+
+  if conf.settings.hostname == "" {
+    hostname = gethostname::gethostname().into_string().unwrap().to_lowercase();
+  } else {
+    hostname = conf.settings.hostname.to_string();
+  }
+
+  return hostname;
+}
+
+fn load_configuration(conf_file: &str) -> PsistatsConfiguration {
+
+  let conf: PsistatsConfiguration;
+
+  let conf_content = std::fs::read_to_string(conf_file).unwrap();
+
+  match toml::from_str::<PsistatsConfiguration>(&conf_content) {
+    Ok(c) => conf = c,
+    Err(e) => {
+      println!("{}", e);
+      std::process::exit(1);
+    }
+  }
+
+  return conf;
+
+}
+
+fn init_plugin_registrar<'a>(conf: &'a PsistatsConfiguration, plugin_dir: &'a str) -> Box<dyn PluginRegistrar<'a> + Send + Sync> {
+  let mut registrar: Box<dyn PluginRegistrar + Send + Sync> = Box::new(DefaultPluginRegistrar::new());
+  let pl: PluginLoader = PluginLoader::new(plugin_dir.to_string());
+
+  unsafe {
+    for plugin_conf in conf.plugin.iter().filter(|c| c.is_enabled()) {
+      let plugin_name = &plugin_conf.name;
+
+      match pl.load_plugin(plugin_name, &mut registrar) {
+        Ok(()) => {
+          info!("Plugin {} loaded", plugin_name);
+        },
+        Err(err) => {
+          error!("Failed to load plugin {}: {}", plugin_name, err);
+        }
+      }
+    }
+  }
+
+  return registrar;
+
 }
 
 pub fn cli_main() {

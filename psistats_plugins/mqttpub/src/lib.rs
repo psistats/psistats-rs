@@ -2,16 +2,16 @@ use libpsistats::{ PublisherFunction, InitFunction, PluginSettings };
 use libpsistats::PluginRegistrar;
 use libpsistats::PsistatsReport;
 use libpsistats::PsistatsError;
+use libpsistats::Commands;
 use std::thread;
 use crossbeam_channel::unbounded;
 use crossbeam_channel::{Receiver, Sender};
-use rumqttc::{MqttOptions, Client, QoS, Transport };
+use rumqttc::{MqttOptions, Client, QoS, Transport, Event, Packet };
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use rustls::ClientConfig;
 use rustls_native_certs;
-
-
+use std::sync::mpsc;
 
 extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send + Sync>) {
   registrar.register_init_fn("mqttpub", Box::new(Init));
@@ -21,14 +21,20 @@ libpsistats::export_plugin!(register);
 
 pub struct MqttWrapper {
   client: Client,
-  path: String,
+  topic_reports: String
 }
 
 
 impl MqttWrapper {
 
-  pub fn init(hostname: &str, conf: &HashMap<String, toml::Value>) -> Result<Self, PsistatsError> {
-    let prefix = conf.get("prefix").unwrap().as_str().unwrap();
+  pub fn init(hostname: &str, conf: &HashMap<String, toml::Value>, cmd_queue: mpsc::Sender<Commands>) -> Result<Self, PsistatsError> {
+    let prefix = conf.get("topic_prefix").unwrap().as_str().unwrap();
+    let topic_reports_suffix  = conf.get("topic_reports").unwrap().as_str().unwrap();
+    let topic_commands_suffix = conf.get("topic_commands").unwrap().as_str().unwrap();
+
+    let topic_reports = format!("{}/{}/{}", prefix, topic_reports_suffix, hostname);
+    let topic_commands = format!("{}/{}", prefix, topic_commands_suffix);
+    let topic_commands_reports = format!("{}/report", topic_commands);
 
     let mqttopts = || -> Result<MqttOptions, ()> {
 
@@ -44,7 +50,7 @@ impl MqttWrapper {
       mqttopts.set_keep_alive(5);
       mqttopts.set_credentials(username, password);
 
-      if (usetls) {
+      if usetls {
         let mut client_config = ClientConfig::new();
         client_config.root_store =
           rustls_native_certs::load_native_certs().expect("Failed to load platform certificates");
@@ -55,19 +61,31 @@ impl MqttWrapper {
       return Ok(mqttopts);
     };
 
-    let (client, mut connection) = Client::new(mqttopts().unwrap(), 10);
+    let (mut client, mut connection) = Client::new(mqttopts().unwrap(), 10);
 
-    let topic = format!("{}/{}", prefix, hostname);
+    client.subscribe(topic_commands_reports, QoS::AtMostOnce).unwrap();
 
-    thread::spawn(move || loop {
-      for notification in connection.iter().enumerate() {
+    thread::spawn(move || {
+      for (_i, notification) in connection.iter().enumerate() {
+        let n = notification.unwrap();
+        match n {
+          Event::Incoming(incoming) => {
+            match incoming {
+              Packet::Publish(msg) => {
+                cmd_queue.send(Commands::Report(String::from_utf8_lossy(&msg.payload).to_string()));
+              },
+              _ => ()
+            }
+          },
+          Event::Outgoing(_) => ()
+        }
 
       }
     });
 
     return Ok(MqttWrapper {
       client: client,
-      path: String::from(topic),
+      topic_reports: String::from(topic_reports),
     });
   }
 
@@ -75,30 +93,26 @@ impl MqttWrapper {
     let json = report.as_json();
     let bytes = json.into_bytes();
 
-    match self.client.publish(&self.path, QoS::AtLeastOnce, false, bytes) {
-      Ok(_) => (),
-      Err(e) => {
-         println!("mqtt ERROR: {:?}", e);
-         return Err(());
-      }
-    }
+    let topic = format!("{}/{}", self.topic_reports, report.reporter);
 
+    self.client.publish(&topic, QoS::AtLeastOnce, false, bytes).unwrap();
 
     return Ok(());
   }
+
 }
 
 lazy_static! {
   pub static ref REPORT_CHANNEL: (Sender<PsistatsReport>, Receiver<PsistatsReport>) = unbounded();
 }
 
-pub fn start_mqtt_thread(hostname: &str, settings: &PluginSettings) {
+pub fn start_mqtt_thread(hostname: &str, settings: &PluginSettings, cmd_queue: mpsc::Sender<Commands>) {
   let conf = settings.get_config().clone();
 
   let hn = String::from(hostname);
 
   thread::spawn(move || {
-    let mut wrapper = MqttWrapper::init(&hn, &conf).unwrap();
+    let mut wrapper = MqttWrapper::init(&hn, &conf, cmd_queue).unwrap();
     loop {
       let report = REPORT_CHANNEL.1.recv().unwrap();
       wrapper.send(&report).unwrap();
@@ -110,10 +124,19 @@ pub fn start_mqtt_thread(hostname: &str, settings: &PluginSettings) {
 struct Init;
 
 impl InitFunction for Init {
-    fn call(&self, hostname: &str, settings: &PluginSettings) -> Result<(), PsistatsError> {
-      start_mqtt_thread(hostname, settings);
+    fn call(&self, hostname: &str, settings: &PluginSettings, cmd_queue: mpsc::Sender<Commands>) -> Result<(), PsistatsError> {
+      start_mqtt_thread(hostname, settings, cmd_queue);
       Ok(())
     }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+struct Commander;
+
+impl Commander {
+  fn call(&self, hostname: &str) {
+
+  }
 }
 
 

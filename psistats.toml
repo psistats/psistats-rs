@@ -52,7 +52,7 @@ config.combined=true
 [[plugin]]
 name="memory"
 enabled=true
-interval=5
+interval=0
 
 # Sensors
 #
@@ -103,7 +103,9 @@ config.mqttport="1883"
 config.usetls=false
 config.username=""
 config.password=""
-config.prefix="psistats"
+config.topic_prefix="psistats"
+config.topic_reports="reports"
+config.topic_commands="commands"
 
 
 [advanced]
