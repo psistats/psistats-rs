@@ -1,7 +1,8 @@
-use libpsistats::{ ReporterFunction, InitFunction, PluginSettings };
+use libpsistats::{ ReporterFunction, InitFunction, PluginSettings, Commands };
 use libpsistats::PluginRegistrar;
 use libpsistats::PsistatsError;
 use libpsistats::ReportValue;
+use std::sync::mpsc::Sender;
 
 mod memory;
 
@@ -16,7 +17,7 @@ libpsistats::export_plugin!(register);
 struct Init;
 
 impl InitFunction for Init {
-    fn call(&self, _: &str, _: &PluginSettings) -> Result<(), PsistatsError> {
+    fn call(&self, _: &str, _: &PluginSettings, _: Sender<Commands>) -> Result<(), PsistatsError> {
         memory::start_mem_thread();
         Ok(())
     }
