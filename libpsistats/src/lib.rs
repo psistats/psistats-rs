@@ -92,6 +92,7 @@ mod errors;
 mod config;
 mod macros;
 mod loader;
+mod commands;
 
 pub use registrar::PluginRegistrar;
 pub use default_registrar::DefaultPluginRegistrar;
@@ -103,6 +104,7 @@ pub use reports::PsistatsReport;
 pub use errors::PsistatsError;
 pub use config::PluginSettings;
 pub use loader::PluginLoader;
+pub use commands::Commands;
 
 
 /// Plugin Entry Point

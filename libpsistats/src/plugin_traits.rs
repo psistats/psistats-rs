@@ -8,7 +8,10 @@ use crate::PsistatsError;
 use crate::PluginSettings;
 use crate::PsistatsReport;
 use crate::ReportValue;
+use crate::Commands;
 
+
+use std::sync::mpsc::Sender;
 
 /// An init function is called when psistats is first loaded. Init functions
 /// can do things like start additional threads or set some initial state.
@@ -41,7 +44,7 @@ use crate::ReportValue;
 /// }
 /// ```
 pub trait InitFunction {
-  fn call(&self, hostname: &str, settings: &PluginSettings) -> Result<(), PsistatsError>;
+  fn call(&self, hostname: &str, settings: &PluginSettings, cmd_queue: Sender<Commands>) -> Result<(), PsistatsError>;
 }
 
 /// Reporter functions generate [`ReportValue`]s. They are usually called
