@@ -33,7 +33,7 @@ pipeline {
 
   agent {
     node {
-      label 'controller'
+      label 'Built-In Node'
     }
   }
 
