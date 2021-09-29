@@ -10,9 +10,6 @@ use crate::PsistatsReport;
 use crate::ReportValue;
 use crate::Commands;
 
-
-use std::sync::mpsc::Sender;
-
 /// An init function is called when psistats is first loaded. Init functions
 /// can do things like start additional threads or set some initial state.
 ///
@@ -44,7 +41,16 @@ use std::sync::mpsc::Sender;
 /// }
 /// ```
 pub trait InitFunction {
-  fn call(&self, hostname: &str, settings: &PluginSettings, cmd_queue: Sender<Commands>) -> Result<(), PsistatsError>;
+  fn call(&self, hostname: &str, settings: &PluginSettings) -> Result<(), PsistatsError>;
+}
+
+/// A command function is called every second. It returns a command to trigger
+/// on Psistats. Currently, you can only request a report.
+///
+/// This is useful to allow a client to request data that rarely changes, such as
+/// IP addresses.
+pub trait CommandFunction {
+  fn call(&self, hostname: &str, settings: &PluginSettings) -> Option<Commands>;
 }
 
 /// Reporter functions generate [`ReportValue`]s. They are usually called

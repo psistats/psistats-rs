@@ -1,11 +1,10 @@
 extern crate pretty_env_logger;
 #[macro_use] extern crate log;
 
-use libpsistats::{ PublisherFunction, InitFunction, PluginSettings, Commands };
+use libpsistats::{ PublisherFunction, InitFunction, PluginSettings };
 use libpsistats::PluginRegistrar;
 use libpsistats::PsistatsReport;
 use libpsistats::PsistatsError;
-use std::sync::mpsc::Sender;
 
 extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send + Sync>) {
   registrar.register_init_fn("logger", Box::new(Init));
@@ -18,7 +17,7 @@ libpsistats::export_plugin!(register);
 struct Init;
 
 impl InitFunction for Init {
-    fn call(&self, _: &str, _: &PluginSettings, _: Sender<Commands>) -> Result<(), PsistatsError> {
+    fn call(&self, _: &str, _: &PluginSettings) -> Result<(), PsistatsError> {
       pretty_env_logger::init();
       Ok(())
     }

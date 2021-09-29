@@ -1,11 +1,9 @@
 use libpsistats::export_plugin;
 
-use libpsistats::{ ReporterFunction, InitFunction, PluginSettings, Commands };
+use libpsistats::{ ReporterFunction, InitFunction, PluginSettings };
 use libpsistats::PluginRegistrar;
 use libpsistats::PsistatsError;
 use libpsistats::ReportValue;
-
-use std::sync::mpsc::Sender;
 
 mod cpu;
 
@@ -20,7 +18,7 @@ export_plugin!(register);
 struct Init;
 
 impl InitFunction for Init {
-    fn call(&self, _: &str, settings: &PluginSettings, _: Sender<Commands>) -> Result<(), PsistatsError> {
+    fn call(&self, _: &str, settings: &PluginSettings) -> Result<(), PsistatsError> {
       let mut combined = false;
       if settings.get_config().contains_key("combined") {
         combined = settings.get_config().get("combined").unwrap().as_bool().unwrap();

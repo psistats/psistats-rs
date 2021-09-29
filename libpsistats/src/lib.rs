@@ -99,6 +99,7 @@ pub use default_registrar::DefaultPluginRegistrar;
 pub use plugin_traits::ReporterFunction;
 pub use plugin_traits::InitFunction;
 pub use plugin_traits::PublisherFunction;
+pub use plugin_traits::CommandFunction;
 pub use reports::ReportValue;
 pub use reports::PsistatsReport;
 pub use errors::PsistatsError;

@@ -1,4 +1,4 @@
-use crate::{ReporterFunction, InitFunction, PublisherFunction };
+use crate::{ReporterFunction, InitFunction, PublisherFunction, CommandFunction };
 
 use std::sync::Arc;
 use std::collections::HashMap;
@@ -17,6 +17,9 @@ pub trait PluginRegistrar<'a> {
 
   /// Register a publisher function
   fn register_publisher_fn(&mut self, name: &str, func: Box<dyn PublisherFunction + Send + Sync>);
+
+  /// Register a command function
+  fn register_command_fn(&mut self, name: &str, func: Box<dyn CommandFunction + Send + Sync>);
 
   /// Register a plugin library. It's necessary to keep a reference
   /// of the plugin library active.
@@ -41,4 +44,7 @@ pub trait PluginRegistrar<'a> {
 
   /// Get all publisher functions
   fn get_publisher_fns(&self) -> &HashMap<String, Box<dyn PublisherFunction + Send + Sync>>;
+
+  /// Get all command functions
+  fn get_command_fns(&self) -> &HashMap<String, Box<dyn CommandFunction + Send + Sync>>;
 }

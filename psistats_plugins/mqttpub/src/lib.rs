@@ -1,4 +1,4 @@
-use libpsistats::{ PublisherFunction, InitFunction, PluginSettings };
+use libpsistats::{CommandFunction, InitFunction, PluginSettings, PublisherFunction};
 use libpsistats::PluginRegistrar;
 use libpsistats::PsistatsReport;
 use libpsistats::PsistatsError;
@@ -11,11 +11,17 @@ use lazy_static::lazy_static;
 use std::collections::HashMap;
 use rustls::ClientConfig;
 use rustls_native_certs;
-use std::sync::mpsc;
+
+
+lazy_static! {
+  pub static ref REPORT_CHANNEL: (Sender<PsistatsReport>, Receiver<PsistatsReport>) = unbounded();
+  pub static ref COMMAND_CHANNEL: (Sender<Commands>, Receiver<Commands>) = unbounded();
+}
 
 extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send + Sync>) {
   registrar.register_init_fn("mqttpub", Box::new(Init));
   registrar.register_publisher_fn("mqttpub", Box::new(Publisher));
+  registrar.register_command_fn("mqttpub", Box::new(Command));
 }
 libpsistats::export_plugin!(register);
 
@@ -27,14 +33,17 @@ pub struct MqttWrapper {
 
 impl MqttWrapper {
 
-  pub fn init(hostname: &str, conf: &HashMap<String, toml::Value>, cmd_queue: mpsc::Sender<Commands>) -> Result<Self, PsistatsError> {
+  pub fn init(hostname: &str, conf: &HashMap<String, toml::Value>) -> Result<Self, PsistatsError> {
     let prefix = conf.get("topic_prefix").unwrap().as_str().unwrap();
     let topic_reports_suffix  = conf.get("topic_reports").unwrap().as_str().unwrap();
     let topic_commands_suffix = conf.get("topic_commands").unwrap().as_str().unwrap();
 
     let topic_reports = format!("{}/{}/{}", prefix, topic_reports_suffix, hostname);
-    let topic_commands = format!("{}/{}", prefix, topic_commands_suffix);
+    let topic_commands = format!("{}/{}/{}", prefix, topic_commands_suffix, hostname);
     let topic_commands_reports = format!("{}/report", topic_commands);
+
+    println!("topic: {}", topic_reports);
+    println!("commands: {}", topic_commands);
 
     let mqttopts = || -> Result<MqttOptions, ()> {
 
@@ -72,7 +81,8 @@ impl MqttWrapper {
           Event::Incoming(incoming) => {
             match incoming {
               Packet::Publish(msg) => {
-                cmd_queue.send(Commands::Report(String::from_utf8_lossy(&msg.payload).to_string()));
+                println!("msg: {:?}", msg);
+                COMMAND_CHANNEL.0.send(Commands::Report(String::from_utf8_lossy(&msg.payload).to_string())).unwrap();
               },
               _ => ()
             }
@@ -102,17 +112,14 @@ impl MqttWrapper {
 
 }
 
-lazy_static! {
-  pub static ref REPORT_CHANNEL: (Sender<PsistatsReport>, Receiver<PsistatsReport>) = unbounded();
-}
 
-pub fn start_mqtt_thread(hostname: &str, settings: &PluginSettings, cmd_queue: mpsc::Sender<Commands>) {
+pub fn start_mqtt_thread(hostname: &str, settings: &PluginSettings) {
   let conf = settings.get_config().clone();
 
   let hn = String::from(hostname);
 
   thread::spawn(move || {
-    let mut wrapper = MqttWrapper::init(&hn, &conf, cmd_queue).unwrap();
+    let mut wrapper = MqttWrapper::init(&hn, &conf).unwrap();
     loop {
       let report = REPORT_CHANNEL.1.recv().unwrap();
       wrapper.send(&report).unwrap();
@@ -124,18 +131,27 @@ pub fn start_mqtt_thread(hostname: &str, settings: &PluginSettings, cmd_queue: m
 struct Init;
 
 impl InitFunction for Init {
-    fn call(&self, hostname: &str, settings: &PluginSettings, cmd_queue: mpsc::Sender<Commands>) -> Result<(), PsistatsError> {
-      start_mqtt_thread(hostname, settings, cmd_queue);
+    fn call(&self, hostname: &str, settings: &PluginSettings) -> Result<(), PsistatsError> {
+      start_mqtt_thread(hostname, settings);
       Ok(())
     }
 }
 
 #[derive(Debug, Clone, PartialEq)]
-struct Commander;
+struct Command;
 
-impl Commander {
-  fn call(&self, hostname: &str) {
-
+impl CommandFunction for Command {
+  #[allow(dead_code)]
+  fn call(&self, hostname: &str, settings: &PluginSettings) -> Option<Commands> {
+    match COMMAND_CHANNEL.1.try_recv() {
+      Ok(c) => {
+        println!("Received cmd {:?}", c);
+        return Some(c);
+      },
+      Err(_) => {
+        return None;
+      }
+    }
   }
 }
 
