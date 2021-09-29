@@ -235,7 +235,7 @@ fn init_plugin_registrar<'a>(conf: &'a Vec<PluginSettings>, plugin_dir: &'a str)
 
 pub fn cli_main() {
     let matches = App::new("Psistats")
-        .version("0.2.0")
+        .version("0.3.0")
         .author("Psikon.Org")
         .about("Psistats system monitoring")
         .arg(
