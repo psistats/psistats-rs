@@ -49,6 +49,8 @@ pub trait InitFunction {
 ///
 /// This is useful to allow a client to request data that rarely changes, such as
 /// IP addresses.
+///
+/// View the mqttpub plugin for an example on how to use this entry point.
 pub trait CommandFunction {
   fn call(&self, hostname: &str, settings: &PluginSettings) -> Option<Commands>;
 }
@@ -63,7 +65,7 @@ pub trait CommandFunction {
 /// struct MyPluginReporter;
 /// impl ReporterFunction for MyPluginReporter {
 ///   call(&self, _: &PluginSettings) -> Result<ReportValue, PsistatsError> {
-///     Ok(ReportValue::String("report!")))
+///     Ok(ReportValue::String("report!"))
 ///   }
 /// }
 /// ```

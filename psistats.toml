@@ -52,7 +52,7 @@ config.combined=true
 [[plugin]]
 name="memory"
 enabled=true
-interval=0
+interval=5
 
 # Sensors
 #
@@ -94,10 +94,12 @@ enabled=false
 # config.usetls    - Set to true to use TLS
 # config.username  - MQTT username (if any)
 # config.password  - MQTT password (if any)
-# config.prefix    - MQTT topic prefix
+# config.topic_prefix - MQTT topic prefix
+# config.topic_reports - MQTT topic to put reports
+# config.topic_commands - MQTT topic to receive commands
 [[plugin]]
 name="mqttpub"
-enabled=true
+enabled=false
 config.mqtthost="localhost"
 config.mqttport="1883"
 config.usetls=false

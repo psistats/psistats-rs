@@ -6,6 +6,8 @@ Psistats is small and simple reporting tool. It can report on a variety of diffe
 
 It is built upon a plugin architecture to make it easier to add more functionality.
 
+This tool is currently in development.
+
 ## Installation
 
 ### Debian-based OSes

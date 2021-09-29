@@ -5,11 +5,11 @@
 /// The plugin entry point is a register function that is called by psistats. The register
 /// function should use the given plugin registrar to register all its callback functions.
 ///
-/// The register function must be compatible with [`PsistatsPlugin::register`]. Example usage:
+/// The register function must be compatible with [`libpsistats::register`]. Example usage:
 ///
 /// ```
-/// extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send>) {
-///   registrar.register_reporter_fn("myplugin", FunctionType::Reporter(Box::new(Reporter)));
+/// extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send + Sync>) {
+///   registrar.register_reporter_fn("myplugin", Box::new(Reporter)));
 /// }
 ///
 /// libpsistats::export_plugin!(register);

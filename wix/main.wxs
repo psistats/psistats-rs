@@ -36,9 +36,9 @@ env variable to be available with the jenkins build number that triggered
 the currrent appveyor build
 -->
 <?ifdef env.JENKINS_BUILD_NUMBER ?>
-  <?define PsistatsVersion = "0.2.0.$(env.JENKINS_BUILD_NUMBER)" ?>
+  <?define PsistatsVersion = "0.3.0.$(env.JENKINS_BUILD_NUMBER)" ?>
 <?else ?>
-  <?define PsistatsVersion = "0.2.0.0" ?>
+  <?define PsistatsVersion = "0.3.0.0" ?>
 <?endif ?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
