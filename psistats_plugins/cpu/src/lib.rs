@@ -5,7 +5,6 @@ use libpsistats::PluginRegistrar;
 use libpsistats::PsistatsError;
 use libpsistats::ReportValue;
 
-
 mod cpu;
 
 extern "C" fn register(registrar: &mut Box<dyn PluginRegistrar + Send + Sync>) {

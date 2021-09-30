@@ -26,7 +26,7 @@ pub fn start_cpu_thread(combined: bool) {
                         return ReportValue::Float(p.get_cpu_usage().into());
                     }).collect();
 
-                    if (combined) {
+                    if combined {
                       let cpu_sum: f64 = cpu_cores.iter().map(|x| {
                         if let ReportValue::Float(cpu_usage) = x {
                           return cpu_usage;
@@ -37,7 +37,7 @@ pub fn start_cpu_thread(combined: bool) {
 
                       let total_cpus = cpu_cores.len();
 
-                      let cpu_total: f64 = (cpu_sum / total_cpus as f64);
+                      let cpu_total: f64 = cpu_sum / total_cpus as f64;
 
                       pr = ReportValue::Float(cpu_total);
                     } else {

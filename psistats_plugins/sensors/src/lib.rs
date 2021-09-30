@@ -2,7 +2,6 @@ use libpsistats::{ ReporterFunction, InitFunction, PluginSettings };
 use libpsistats::PluginRegistrar;
 use libpsistats::PsistatsError;
 use libpsistats::ReportValue;
-
 mod sensors;
 
 

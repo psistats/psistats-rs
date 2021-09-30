@@ -1,5 +1,5 @@
 use crate::PluginRegistrar;
-use crate::{PublisherFunction, ReporterFunction, InitFunction};
+use crate::{PublisherFunction, ReporterFunction, InitFunction, CommandFunction};
 
 
 use libloading::Library;
@@ -11,6 +11,7 @@ pub struct DefaultPluginRegistrar {
   init_fns: HashMap<String, Box<dyn InitFunction + Send + Sync>>,
   reporter_fns: HashMap<String, Box<dyn ReporterFunction + Send + Sync>>,
   publisher_fns: HashMap<String, Box<dyn PublisherFunction + Send + Sync>>,
+  cmd_fns: HashMap<String, Box<dyn CommandFunction + Send + Sync>>,
 
   libs: Vec<Arc<Library>>,
 }
@@ -34,6 +35,10 @@ impl<'a> PluginRegistrar<'a> for DefaultPluginRegistrar {
 
   fn register_publisher_fn(&mut self, name: &str, func: Box<dyn PublisherFunction + Send + Sync>) {
     self.publisher_fns.insert(name.to_string(), func);
+  }
+
+  fn register_command_fn(&mut self, name: &str, func: Box<dyn CommandFunction + Send + Sync>) {
+    self.cmd_fns.insert(name.to_string(), func);
   }
 
   fn register_lib(&mut self, lib: Arc<libloading::Library>) {
@@ -74,5 +79,9 @@ impl<'a> PluginRegistrar<'a> for DefaultPluginRegistrar {
 
   fn get_publisher_fns(&self) -> &HashMap<String, Box<dyn PublisherFunction + Send + Sync>> {
     return &self.publisher_fns;
+  }
+
+  fn get_command_fns(&self) -> &HashMap<String, Box<dyn CommandFunction + Send + Sync>> {
+    return &self.cmd_fns;
   }
 }

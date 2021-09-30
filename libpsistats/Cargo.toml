@@ -1,6 +1,6 @@
 [package]
 name = "libpsistats"
-version = "0.2.0-beta"
+version = "0.3.0-beta"
 license = "MIT"
 authors = ["Alex Dow <adow@psikon.com>"]
 edition = "2018"
@@ -18,3 +18,4 @@ libloading = "0.7.0"
 serde_json = "1.0.64"
 serde = { version = "1.0.124", features = ["derive"] }
 toml = "0.5.8"
+crossbeam-channel = "0.5.1"

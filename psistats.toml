@@ -94,7 +94,9 @@ enabled=false
 # config.usetls    - Set to true to use TLS
 # config.username  - MQTT username (if any)
 # config.password  - MQTT password (if any)
-# config.prefix    - MQTT topic prefix
+# config.topic_prefix - MQTT topic prefix
+# config.topic_reports - MQTT topic to put reports
+# config.topic_commands - MQTT topic to receive commands
 [[plugin]]
 name="mqttpub"
 enabled=true
@@ -103,7 +105,9 @@ config.mqttport="1883"
 config.usetls=false
 config.username=""
 config.password=""
-config.prefix="psistats"
+config.topic_prefix="psistats"
+config.topic_reports="reports"
+config.topic_commands="commands"
 
 
 [advanced]

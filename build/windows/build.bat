@@ -1,10 +1,10 @@
 SET PATH_SELF=%~dp0
-SET PROJECT_VERSION=0.2.0-beta
+SET PROJECT_VERSION=0.3.0-beta
 SET BUILD_VERSION=%PROJECT_VERSION%
 
-if "%JENKINS_BUILD_NUMBER%"=="" ( 
+if "%JENKINS_BUILD_NUMBER%"=="" (
     echo "Not an appveyor build"
-) ELSE ( 
+) ELSE (
     set BUILD_VERSION=%BUILD_VERSION%.%JENKINS_BUILD_NUMBER%
 )
 
@@ -17,7 +17,7 @@ echo Project path: %PROJECT_PATH%
 
 cd "%PROJECT_PATH%"
 cargo clean
-cargo install cargo-wix cargo-config
+cargo install cargo-wix
 cargo build --release
 mkdir "%PROJECT_PATH%\target\release\unzipped"
 mkdir "%PROJECT_PATH%\target\release\unzipped\plugins"
