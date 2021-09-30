@@ -4,7 +4,7 @@ use crate::errors::PsistatsError;
 use libloading::Library;
 use std;
 use std::sync::Arc;
-use std::{ffi::OsStr, fmt};
+use std::{ffi::OsStr};
 
 /// Plugin Loader
 ///

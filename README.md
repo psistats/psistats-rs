@@ -1,10 +1,12 @@
-[![Build Status](https://dev.psikon.org/jenkins/buildStatus/icon?job=psistats%2Fpsistats-rs%2Fmaster)](https://dev.psikon.org/jenkins/job/psistats/job/psistats-rs/job/master)
+[![Build Status](https://dev.psikon.org/jenkins/buildStatus/icon?job=psistats%2Fpsistats-rs%2Fdevelop)](https://dev.psikon.org/jenkins/job/psistats/job/psistats-rs/job/develop)
 
 # psistats
 
 Psistats is small and simple reporting tool. It can report on a variety of different statistics including CPU and memory usage. It is inspired by the venerable [collectd](https://github.com/collectd/collectd).
 
 It is built upon a plugin architecture to make it easier to add more functionality.
+
+This tool is currently in development.
 
 ## Installation
 

@@ -36,14 +36,14 @@ loglevel="info"
 # Reports current cpu usage in percentage.
 #
 # Configuration:
-# config.show_total - If set to false, then an array will be reported
+# config.combined - If set to false, then an array will be reported
 #                     with usage percent for each core. Otherwise Reports
 #                     total cpu usage.
 [[plugin]]
 name="cpu"
 enabled=true
 interval=1
-config.show_total=false
+config.combined=true
 
 # Memory Reporter
 #
@@ -80,7 +80,8 @@ interval=0
 # Logs all reports to stdout
 [[plugin]]
 name="logger"
-enabled=true
+enabled=false
+
 
 # MQTT Publisher
 #
@@ -90,17 +91,23 @@ enabled=true
 # Configuration
 # config.mqtthost  - Host or IP address of the MQTT server.
 # config.mqttport  - Port number of the MQTT server
+# config.usetls    - Set to true to use TLS
 # config.username  - MQTT username (if any)
 # config.password  - MQTT password (if any)
-# config.prefix    - MQTT topic prefix
+# config.topic_prefix - MQTT topic prefix
+# config.topic_reports - MQTT topic to put reports
+# config.topic_commands - MQTT topic to receive commands
 [[plugin]]
 name="mqttpub"
 enabled=false
 config.mqtthost="localhost"
 config.mqttport="1883"
+config.usetls=false
 config.username=""
 config.password=""
-config.prefix="psistats"
+config.topic_prefix="psistats"
+config.topic_reports="reports"
+config.topic_commands="commands"
 
 
 [advanced]

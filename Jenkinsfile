@@ -33,7 +33,7 @@ pipeline {
 
   agent {
     node {
-      label 'master'
+      label 'controller'
     }
   }
 

@@ -92,17 +92,20 @@ mod errors;
 mod config;
 mod macros;
 mod loader;
+mod commands;
 
 pub use registrar::PluginRegistrar;
 pub use default_registrar::DefaultPluginRegistrar;
 pub use plugin_traits::ReporterFunction;
 pub use plugin_traits::InitFunction;
 pub use plugin_traits::PublisherFunction;
+pub use plugin_traits::CommandFunction;
 pub use reports::ReportValue;
 pub use reports::PsistatsReport;
 pub use errors::PsistatsError;
 pub use config::PluginSettings;
 pub use loader::PluginLoader;
+pub use commands::Commands;
 
 
 /// Plugin Entry Point
