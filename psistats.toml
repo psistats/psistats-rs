@@ -99,7 +99,7 @@ enabled=false
 # config.topic_commands - MQTT topic to receive commands
 [[plugin]]
 name="mqttpub"
-enabled=false
+enabled=true
 config.mqtthost="localhost"
 config.mqttport="1883"
 config.usetls=false

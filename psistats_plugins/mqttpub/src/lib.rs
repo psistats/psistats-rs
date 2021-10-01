@@ -76,20 +76,26 @@ impl MqttWrapper {
 
     thread::spawn(move || {
       for (_i, notification) in connection.iter().enumerate() {
-        let n = notification.unwrap();
-        match n {
-          Event::Incoming(incoming) => {
-            match incoming {
-              Packet::Publish(msg) => {
-                println!("msg: {:?}", msg);
-                COMMAND_CHANNEL.0.send(Commands::Report(String::from_utf8_lossy(&msg.payload).to_string())).unwrap();
+        match notification {
+          Ok(n) => {
+            match n {
+              Event::Incoming(incoming) => {
+                match incoming {
+                  Packet::Publish(msg) => {
+                    println!("msg: {:?}", msg);
+                    COMMAND_CHANNEL.0.send(Commands::Report(String::from_utf8_lossy(&msg.payload).to_string())).unwrap();
+                  },
+                  _ => ()
+                }
               },
-              _ => ()
+              Event::Outgoing(_) => ()
             }
           },
-          Event::Outgoing(_) => ()
+          Err(err) => {
+            println!("Error getting notification: {:?}", err);
+            std::thread::sleep(std::time::Duration::from_millis(5000));
+          }
         }
-
       }
     });
 

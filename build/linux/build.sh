@@ -57,7 +57,6 @@ fi
 
 
 cd $PROJECT_DIR
-cargo clean
 cargo install cargo-deb
 
 cd $PROJECT_DIR/psistats
