@@ -176,7 +176,7 @@ pipeline {
           githubNotify content: 'ci/jenkins/arm6l',
                         credentialsId: 'psikon-ci-github-usertoken',
                         description: 'Building arm6l linux binaries',
-                        status: 'PENDING'
+                        status: 'PENDING',
                         targetUrl: 'https://dev.psikon.org/jenkins'
           sh 'build/linux/build.sh arm-unknown-linux-gnueabihf'
           githubNotify content: 'ci/jenkins/arm6l',
@@ -184,9 +184,9 @@ pipeline {
                         description: '64bit arm linux binaries built',
                         status: 'SUCCESS',
                         targetUrl: 'https://dev.psikon.org/jenkins'
-        }
       }
     }
+
     stage('Deploy BETA') {
       when { branch "develop" }
       steps {
