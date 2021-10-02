@@ -187,13 +187,13 @@ pipeline {
       }
     }
 
-    stage('Deploy BETA') {
+    stage('Deploy BETA Zero') {
       when { branch "develop" }
       steps {
         sh 'build/linux/deploy-debian.sh testing-zero'
       }
     }
-    stage('Deploy') {
+    stage('Deploy Zero') {
       when { branch "master" }
       steps {
         sh 'build/linux/deploy-debian.sh main-zero'
