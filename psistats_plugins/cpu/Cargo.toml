@@ -15,4 +15,4 @@ libpsistats = { path = "../../libpsistats" }
 crossbeam-channel = "0.5.0"
 lazy_static = "1.4.0"
 # sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo" }
-sysinfo = "0.16.4"
+sysinfo = "0.20.4"

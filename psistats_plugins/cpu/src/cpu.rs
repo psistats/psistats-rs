@@ -19,11 +19,11 @@ pub fn start_cpu_thread(combined: bool) {
             match SYS_CHANNEL.1.recv() {
                 Ok(_) => {
                     sys.refresh_cpu();
-                    let procs = sys.get_processors();
+                    let procs = sys.processors();
                     let pr: ReportValue;
 
                     let cpu_cores: Vec<ReportValue> = procs.iter().map(|p| {
-                        return ReportValue::Float(p.get_cpu_usage().into());
+                        return ReportValue::Float(p.cpu_usage().into());
                     }).collect();
 
                     if combined {

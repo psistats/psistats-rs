@@ -171,7 +171,34 @@ pipeline {
         sh 'build/linux/deploy-debian.sh main'
       }
     }
-
+    stage("Build for Pi Zero W") {
+      steps {
+          githubNotify content: 'ci/jenkins/arm6l',
+                        credentialsId: 'psikon-ci-github-usertoken',
+                        description: 'Building arm6l linux binaries',
+                        status: 'PENDING'
+                        targetUrl: 'https://dev.psikon.org/jenkins'
+          sh 'build/linux/build.sh arm-unknown-linux-gnueabihf'
+          githubNotify content: 'ci/jenkins/arm6l',
+                        credentialsId: 'psikon-ci-github-usertoken',
+                        description: '64bit arm linux binaries built',
+                        status: 'SUCCESS',
+                        targetUrl: 'https://dev.psikon.org/jenkins'
+        }
+      }
+    }
+    stage('Deploy BETA') {
+      when { branch "develop" }
+      steps {
+        sh 'build/linux/deploy-debian.sh testing-zero'
+      }
+    }
+    stage('Deploy') {
+      when { branch "master" }
+      steps {
+        sh 'build/linux/deploy-debian.sh main-zero'
+      }
+    }
   }
   post {
     success {
