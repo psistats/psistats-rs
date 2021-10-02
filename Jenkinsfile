@@ -173,13 +173,13 @@ pipeline {
     }
     stage("Build for Pi Zero W") {
       steps {
-          githubNotify content: 'ci/jenkins/arm6l',
+          githubNotify context: 'ci/jenkins/arm6l',
                         credentialsId: 'psikon-ci-github-usertoken',
                         description: 'Building arm6l linux binaries',
                         status: 'PENDING',
                         targetUrl: 'https://dev.psikon.org/jenkins'
           sh 'build/linux/build.sh arm-unknown-linux-gnueabihf'
-          githubNotify content: 'ci/jenkins/arm6l',
+          githubNotify context: 'ci/jenkins/arm6l',
                         credentialsId: 'psikon-ci-github-usertoken',
                         description: '64bit arm linux binaries built',
                         status: 'SUCCESS',
