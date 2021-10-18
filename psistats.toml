@@ -71,6 +71,14 @@ name="ipaddrs"
 enabled=true
 interval=0
 
+# Uptime
+#
+# Reports system uptime in seconds
+[[plugin]]
+name="uptime"
+enabled=true
+interval=0
+
 #
 # Publishing Plugins
 #
