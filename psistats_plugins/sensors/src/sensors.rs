@@ -47,7 +47,7 @@ pub fn get_report(_: &PluginSettings) -> ReportValue {
   return lmsensors::get_report(&includes, &mapping);
 
   #[cfg(target_os = "windows")]
-  return ohmsensors::get_report(&INCLUDES.lock().unwrap());
+  return ohmsensors::get_report(&includes, &mapping).unwrap();
 }
 
 /*

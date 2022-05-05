@@ -1,6 +1,7 @@
 use std::sync::Mutex;
 use std::rc::Rc;
 use std::thread;
+use std::collections::HashMap;
 use wmi::*;
 use libpsistats::ReportValue;
 use libpsistats::PsistatsError;
@@ -38,7 +39,7 @@ lazy_static! {
     static ref CONNECTED: Mutex<bool> = Mutex::new(false);
 
     static ref WMI_CHANNEL: (Sender<bool>, Receiver<bool>) = unbounded();
-    static ref REPORT_CHANNEL: (Sender<ReportValue>, Receiver<ReportValue>) = unbounded();    
+    static ref REPORT_CHANNEL: (Sender<Vec<Sensor>>, Receiver<Vec<Sensor>>) = unbounded();    
 }   
 
 pub fn start_ohm_thread() {
@@ -53,14 +54,9 @@ pub fn start_ohm_thread() {
                     if v == true {
                         let results: Vec<Sensor> = wmi_con.query().unwrap();
                         
-                        let report_values = results.iter().map(|r| {
-                            return ReportValue::Array([
-                                ReportValue::String(r.Identifier.clone()),
-                                ReportValue::Float(r.Value)
-                            ].to_vec());
-                        }).collect();
+                        
 
-                        REPORT_CHANNEL.0.send(ReportValue::Array(report_values)).unwrap();
+                        REPORT_CHANNEL.0.send(results).unwrap();
                     }
                 },
                 Err(err) => {
@@ -71,7 +67,7 @@ pub fn start_ohm_thread() {
     });
 }
 
-pub fn get_report() -> Result<ReportValue, PsistatsError> {
+pub fn get_report(includes: &Vec<String>, mapping: &HashMap<String, String>) -> Result<ReportValue, PsistatsError> {
 
     let mut connected = CONNECTED.lock().unwrap();
 
@@ -85,8 +81,29 @@ pub fn get_report() -> Result<ReportValue, PsistatsError> {
     WMI_CHANNEL.0.send(true).unwrap();
 
     match REPORT_CHANNEL.1.recv() {
-        Ok(report) => {
-            return Ok(report);
+        Ok(sensors) => {
+
+            let mut reports: Vec<ReportValue> = vec![];
+
+            for sensor in sensors {
+
+                let mut sensor_name = sensor.Identifier;
+
+                if mapping.contains_key(&sensor_name) {
+                    sensor_name = mapping.get(&sensor_name).unwrap().to_string();
+                }
+
+                if includes.len() == 0 || includes.contains(&sensor_name) {
+                    let report_value = ReportValue::Array([
+                        ReportValue::String(sensor_name),
+                        ReportValue::Float(sensor.Value)
+                    ].to_vec());
+
+                    reports.push(report_value);
+                }
+            }
+
+            return Ok(ReportValue::Array(reports));
         }
         Err(err) => {
             return Err(PsistatsError::Runtime(format!("{}", err)));
