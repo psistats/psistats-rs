@@ -8,7 +8,8 @@ members = [
     "psistats_plugins/ipaddrs",
     "psistats_plugins/sensors",
     "psistats_plugins/mqttpub",
-    "psistats_plugins/uptime"
+    "psistats_plugins/uptime",
+    "psistats_plugins/os"
 ]
 
 [profile.dev]
