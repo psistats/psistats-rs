@@ -41,7 +41,7 @@ loglevel="info"
 #                     total cpu usage.
 [[plugin]]
 name="cpu"
-enabled=false
+enabled=true
 interval=1
 config.combined=true
 
@@ -51,7 +51,7 @@ config.combined=true
 #
 [[plugin]]
 name="memory"
-enabled=false
+enabled=true
 interval=5
 
 # Sensors
