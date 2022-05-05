@@ -23,10 +23,10 @@ pub fn start_mem_thread() {
                     sys.refresh_memory();
                     let mut msg: Vec<ReportValue> = Vec::new();
 
-                    msg.push(ReportValue::Integer(sys.get_total_memory()));
-                    msg.push(ReportValue::Integer(sys.get_free_memory()));
-                    msg.push(ReportValue::Integer(sys.get_available_memory()));
-                    msg.push(ReportValue::Integer(sys.get_used_memory()));
+                    msg.push(ReportValue::Integer(sys.total_memory()));
+                    msg.push(ReportValue::Integer(sys.free_memory()));
+                    msg.push(ReportValue::Integer(sys.available_memory()));
+                    msg.push(ReportValue::Integer(sys.used_memory()));
 
                     let pr = ReportValue::Array(msg);
                     REPORT_CHANNEL.0.send(pr).unwrap();

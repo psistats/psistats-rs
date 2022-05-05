@@ -2,7 +2,7 @@ use libpsistats::PluginRegistrar;
 use libpsistats::PluginLoader;
 use libpsistats::DefaultPluginRegistrar;
 use libpsistats::PluginSettings;
-use clap::{App, Arg};
+use clap::{Command, Arg};
 use std::alloc::System;
 use std::sync::Arc;
 use std::time::Duration;
@@ -236,24 +236,24 @@ fn init_plugin_registrar<'a>(conf: &'a Vec<PluginSettings>, plugin_dir: &'a str)
 }
 
 pub fn cli_main() {
-    let matches = App::new("Psistats")
+    let matches = Command::new("Psistats")
         .version("0.3.0")
         .author("Psikon.Org")
         .about("Psistats system monitoring")
         .arg(
-            Arg::with_name("config")
-                .short("c")
+            Arg::new("config")
+                .short('c')
                 .long("config")
                 .value_name("FILE")
                 .help("Location of config file")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("plugins")
+            Arg::new("plugins")
                 .long("plugins")
                 .value_name("DIR")
                 .help("One or many paths to plugins")
-                .multiple(true)
+                .multiple_occurrences(true)
                 .takes_value(true)
                 .required(true),
         )

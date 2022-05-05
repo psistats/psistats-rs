@@ -3,7 +3,7 @@ name = "psistats"
 version = "0.3.0-beta"
 license = "MIT"
 authors = ["Alex Dowgailenko <adow@psikon.com>"]
-edition = "2018"
+edition = "2021"
 publish = false
 include = ["../psistats.toml", "../psistats-service.exe", "../psistats-service.xml"]
 description = "Psistats system metrics reporting tool"
@@ -33,7 +33,7 @@ assets = [
 
 [dependencies]
 libpsistats = { path = "../libpsistats" }
-clap = "2.33.0"
+clap = "3.1.15"
 lazy_static = "1.4.0"
 log = "0.4.14"
 os_info = "3.0.1"
