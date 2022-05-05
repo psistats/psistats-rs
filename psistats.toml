@@ -56,12 +56,32 @@ interval=5
 
 # Sensors
 #
-# Reports the values of all available sensors. This plugin will do nothing
-# on Windows. On Linux or Unix based systems, libsensors must be installed.
+# Reports the values of all available sensors.
+#
+# To use this on windows, Open Hardware Monitor must be installed.
+# To use this on linux/unix systems, libsensors must be installed.
+#
+# Configuration:
+# config.mapping - An array that maps a sensor identifier to another value
+# config.includes - If set, only sensor identifiers in this list will be included.
+#                   This list is based on sensor identifiers after they have been
+#                   mapped
+#
+# Example:
+#
+# config.mapping = [
+#   [ "/intelcpu/0/temperature/0", "/cpu/package/temp" ],
+#   [ "/coretemp-isa-0000/temp0/temp0_input", "/cpu/package/temp"]
+# ]
+# config.includes = [
+#   "/cpu/package/temp"
+# ]
+#
+# The two sensor identifiers are being mapped to the same identifier name. Useful if sharing a configuration between windows and linux.
 [[plugin]]
 name="sensors"
 enabled=false
-interval=5
+interval=1
 
 # IP Addresses
 #
@@ -88,7 +108,7 @@ interval=0
 # Logs all reports to stdout
 [[plugin]]
 name="logger"
-enabled=false
+enabled=true
 
 
 # MQTT Publisher
@@ -107,7 +127,7 @@ enabled=false
 # config.topic_commands - MQTT topic to receive commands
 [[plugin]]
 name="mqttpub"
-enabled=true
+enabled=false
 config.mqtthost="localhost"
 config.mqttport="1883"
 config.usetls=false
