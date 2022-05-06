@@ -22,13 +22,13 @@ Then you can choose "testing" or "main" debian repos. "testing" will be synced w
 For stable releases:
 
 ```
-$ echo "deb https://debrepo.psikon.org/ psikon-main main" | sudo tee /etc/apt/sources.list.d/yarn.list
+$ echo "deb https://debrepo.psikon.org/ psikon-main main" | sudo tee /etc/apt/sources.list.d/psikon.list
 ```
 
 For develop releases:
 
 ```
-$ echo "deb https://debrepo.psikon.org/ psikon-testing testing" | sudo tee /etc/apt/sources.list.d/yarn.list
+$ echo "deb https://debrepo.psikon.org/ psikon-testing testing" | sudo tee /etc/apt/sources.list.d/psikon-testing.list
 ```
 
 Then install:
@@ -40,12 +40,12 @@ $ apt-get install psistats
 
 You can then configure psistats by editing `/etc/psistats.conf`.
 
+To use the sensors plugin, you should install libsensors on Linux/Unix systems, or install Open Hardware Monitor for windows.
+
 ### Windows
 
 Currently, artifacts are only available from the build machine. The last successful master builds are available here:
 https://dev.psikon.org/jenkins/job/psistats/job/psistats-rs/job/master/lastSuccessfulBuild/artifact/target/release/artifacts/
-
-The sensors plugin is not available for windows.
 
 ### Plugin Authoring
 

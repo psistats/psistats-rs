@@ -2,6 +2,13 @@ use libpsistats::{ ReporterFunction, InitFunction, PluginSettings };
 use libpsistats::PluginRegistrar;
 use libpsistats::PsistatsError;
 use libpsistats::ReportValue;
+
+#[cfg(target_os = "windows")]
+mod ohmsensors;
+
+#[cfg(not(target_os = "windows"))]
+mod lmsensors;
+
 mod sensors;
 
 
@@ -17,7 +24,8 @@ libpsistats::export_plugin!(register);
 struct Init;
 
 impl InitFunction for Init {
-    fn call(&self, _: &str, _: &PluginSettings) -> Result<(), PsistatsError> {
+    fn call(&self, _: &str, settings: &PluginSettings) -> Result<(), PsistatsError> {
+        sensors::init(settings);
         Ok(())
     }
 }
@@ -26,7 +34,7 @@ impl InitFunction for Init {
 struct Reporter;
 
 impl ReporterFunction for Reporter {
-    fn call(&self, _: &PluginSettings) -> Result<ReportValue, PsistatsError> {
-        Ok(sensors::get_report())
+    fn call(&self, config: &PluginSettings) -> Result<ReportValue, PsistatsError> {
+        Ok(sensors::get_report(config))
     }
 }
