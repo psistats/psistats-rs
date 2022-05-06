@@ -28,4 +28,4 @@ copy "%PROJECT_PATH%\LICENSE" "%PROJECT_PATH%\target\release\unzipped"
 7z a "%PROJECT_PATH%\target\release\artifacts\psistats-%BUILD_VERSION%.zip" "%PROJECT_PATH%\target\release\unzipped"\*
 
 heat dir target\release\unzipped\plugins -cg PsistatsPlugins -gg -out target\wix\plugins.wxs -t "%PROJECT_PATH%\wix\plugin_filter.xsl" -dr plugins
-cargo wix -n psistats -p psistats --install-version %PROJECT_VERSION% --include "%PROJECT_PATH%\wix\main.wsx" --include "%PROJECT_PATH%\target\wix\plugins.wxs" --nocapture --output "%PROJECT_PATH%\target\release\artifacts\psistats-%BUILD_VERSION%.msi"
+cargo wix -n psistats -p psistats --install-version %PROJECT_VERSION% --include "%PROJECT_PATH%\wix\main.wxs" --include "%PROJECT_PATH%\target\wix\plugins.wxs" --nocapture --output "%PROJECT_PATH%\target\release\artifacts\psistats-%BUILD_VERSION%.msi"
