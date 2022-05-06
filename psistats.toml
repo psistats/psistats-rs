@@ -41,7 +41,7 @@ loglevel="info"
 #                     total cpu usage.
 [[plugin]]
 name="cpu"
-enabled=true
+enabled=false
 interval=1
 config.combined=true
 
@@ -51,7 +51,7 @@ config.combined=true
 #
 [[plugin]]
 name="memory"
-enabled=true
+enabled=false
 interval=5
 
 # Sensors
@@ -98,6 +98,14 @@ interval=0
 name="uptime"
 enabled=true
 interval=0
+
+# Operating system
+#
+# Reports details about your operating system
+[[plugin]]
+name="os"
+enabled=true
+interval=1
 
 #
 # Publishing Plugins
