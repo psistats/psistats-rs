@@ -11,7 +11,7 @@ use crossbeam_channel::{Receiver, Sender};
 use crossbeam::thread as cbthread;
 use rumqttc::{Client, ClientError, Event, MqttOptions, Packet, QoS, Transport, TrySendError};
 use lazy_static::lazy_static;
-use rustls::ClientConfig;
+use rustls::{ClientConfig, RootCertStore};
 use rustls_native_certs;
 
 
@@ -42,14 +42,24 @@ pub fn get_mqtt_opts(hostname: &str, settings: &PluginSettings) -> Option<MqttOp
 
   let mut mqttopts = MqttOptions::new(client_id, mqtthost, mqttport.parse::<u16>().unwrap());
 
-  mqttopts.set_keep_alive(15);
+  mqttopts.set_keep_alive(Duration::from_secs(15));
   mqttopts.set_credentials(username, password);
   mqttopts.set_clean_session(true);
 
   if usetls {
-    let mut client_config = ClientConfig::new();
-    client_config.root_store =
-      rustls_native_certs::load_native_certs().expect("Failed to load platform certificates");
+
+    let root_certs = rustls_native_certs::load_native_certs().unwrap();
+    let mut root_store = rustls::RootCertStore::empty();
+
+    for cert in root_certs {
+      root_store.add(&rustls::Certificate(cert.0));
+    }
+
+    let mut client_config = ClientConfig::builder()
+      .with_safe_defaults()
+      .with_root_certificates(root_store)
+      .with_no_client_auth();
+      
 
       mqttopts.set_transport(Transport::tls_with_config(client_config.into()));
 
