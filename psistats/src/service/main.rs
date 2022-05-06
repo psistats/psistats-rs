@@ -23,14 +23,12 @@ static ALLOCATOR: System = System;
 pub fn main(conf_file: String, plugin_dir: String) {
 
   let conf = Arc::new(load_configuration(&conf_file));
-  let hostname = get_hostname(&conf);
-
 
   env::set_var("RUST_LOG", &conf.settings.loglevel);
   pretty_env_logger::init();
 
   info!("=[ PSISTATS ]=");
-  info!("Hostname: {}", hostname);
+  info!("Hostname: {}", conf.settings.hostname);
 
 
   info!("Initializing plugins");
@@ -42,7 +40,7 @@ pub fn main(conf_file: String, plugin_dir: String) {
   for (plugin_name, initfn) in init_fns.iter() {
     let plugin_conf = conf.get_plugin_config(plugin_name).unwrap();
     debug!("Calling init fn for {}", plugin_name);
-    initfn.call(&hostname, plugin_conf).unwrap();
+    initfn.call(&conf.settings.hostname, plugin_conf).unwrap();
   }
 
   let (report_queue_tx, publisher_worker) = PublisherWorker::init(registrar.get_publisher_fns(), &conf);
@@ -192,7 +190,7 @@ fn get_hostname<'a>(conf: &'a PsistatsConfiguration) -> String {
 
 fn load_configuration(conf_file: &str) -> PsistatsConfiguration {
 
-  let conf: PsistatsConfiguration;
+  let mut conf: PsistatsConfiguration;
 
   let conf_content = std::fs::read_to_string(conf_file).unwrap();
 
@@ -203,6 +201,10 @@ fn load_configuration(conf_file: &str) -> PsistatsConfiguration {
       println!("{}", e);
       std::process::exit(1);
     }
+  }
+
+  if conf.settings.hostname == "" {
+    conf.settings.hostname = gethostname::gethostname().into_string().unwrap().to_lowercase();
   }
 
   return conf;
