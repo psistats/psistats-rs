@@ -2,7 +2,7 @@
 name = "psistats"
 version = "0.3.0-beta"
 license = "MIT"
-authors = ["Alex Dow <adow@psikon.com>"]
+authors = ["Alex Dowgailenko <adow@psikon.com>"]
 edition = "2021"
 publish = false
 include = ["../psistats.toml", "../psistats-service.exe", "../psistats-service.xml"]

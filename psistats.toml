@@ -99,6 +99,14 @@ name="uptime"
 enabled=true
 interval=0
 
+# Operating system
+#
+# Reports details about your operating system
+[[plugin]]
+name="os"
+enabled=true
+interval=0
+
 #
 # Publishing Plugins
 #
